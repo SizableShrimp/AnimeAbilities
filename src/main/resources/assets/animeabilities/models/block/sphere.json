@@ -1,0 +1,10 @@
+{
+  "loader": "forge:obj",
+  "model": "animeabilities:sphere.obj",
+  "_comment": "Can refer to in .mtl using #texture0",
+  "ambientToFullbright": false,
+  "diffuseLighting": false,
+  "textures": {
+    "texture0": "forge:white"
+  }
+}

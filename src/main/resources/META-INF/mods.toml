@@ -47,3 +47,10 @@ mandatory=true
 versionRange="${minecraft_version_range}"
 ordering="NONE"
 side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="calemiutils"
+versionRange="[1.0,)"
+mandatory=true
+ordering="NONE"
+side="BOTH"
