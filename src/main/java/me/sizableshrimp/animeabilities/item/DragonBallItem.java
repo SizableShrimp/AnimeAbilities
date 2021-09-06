@@ -5,18 +5,28 @@ import me.sizableshrimp.animeabilities.capability.KiHolderCapability;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolder;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolderCapability;
 import me.sizableshrimp.animeabilities.entity.SpiritBombEntity;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.world.gen.Heightmap;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.UpgradeType> {
+    // We need to make our own slow falling so forge doesn't remove it
+    public static final AttributeModifier ANIME_SLOW_FALLING = new AttributeModifier(
+            UUID.fromString("1fe1c0a0-a852-4b79-9d2d-c16ba044af1e"),
+            "Slow falling acceleration reduction",
+            -0.07, // Add -0.07 to 0.08 so we get the vanilla default of 0.01
+            AttributeModifier.Operation.ADDITION);
     public static final int SPIRIT_BOMB_KI_COST = 200;
     public static final int SPIRIT_BOMB_ANIMATION_DURATION = 200;
 
@@ -42,16 +52,34 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END)
-            return;
+        if (event.phase == TickEvent.Phase.START) {
+            checkGlide(event.player);
+        } else {
+            tickSpiritBomb(event.player);
+        }
+    }
 
-        PlayerEntity player = event.player;
+    private void checkGlide(PlayerEntity player) {
+        boolean canGlide = !player.abilities.mayfly
+                && Registration.DRAGON_BALL.get().hasThisAbility(player)
+                && player.getY() > player.level.getHeightmapPos(Heightmap.Type.WORLD_SURFACE, player.blockPosition()).getY() + 3;
+        ModifiableAttributeInstance gravity = player.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
+        if (canGlide) {
+            if (!gravity.hasModifier(ANIME_SLOW_FALLING))
+                gravity.addTransientModifier(ANIME_SLOW_FALLING);
+            player.fallDistance = 0.0F;
+        } else {
+            gravity.removeModifier(ANIME_SLOW_FALLING);
+        }
+    }
+
+    private void tickSpiritBomb(PlayerEntity player) {
         SpiritBombHolderCapability.getSpiritBombHolder(player).ifPresent(spiritBombHolder -> {
             if (!spiritBombHolder.isUsingSpiritBomb())
                 return;
             int remaining = spiritBombHolder.getSpiritBombRemainingAnimation() - 1;
             spiritBombHolder.setSpiritBombRemainingAnimation(remaining, false);
-            if (event.side == LogicalSide.CLIENT) {
+            if (player.level.isClientSide) {
                 if (remaining + 1 == SPIRIT_BOMB_ANIMATION_DURATION) {
                     player.level.playSound(player, player, Registration.SPIRIT_BOMB_CHARGE_SOUND.get(), SoundCategory.PLAYERS, 0.1F, 0.5F);
                 }
@@ -60,7 +88,7 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
                     double y = player.getEyeY() + ((2.0D * player.getRandom().nextDouble() - 1.0D) * scale) + getSphereYOffset();
                     player.level.addParticle(Registration.DRAGONBALL_BOLT.get(), player.getRandomX(scale), y, player.getRandomZ(scale), 0, 0, 0);
                 }
-            } else if (event.side == LogicalSide.SERVER) {
+            } else {
                 // Use a portion of the ki cost for every tick its active, and stop if they don't have enough ki
                 boolean hasEnoughKi = useKi(player, SPIRIT_BOMB_KI_COST / SPIRIT_BOMB_ANIMATION_DURATION);
                 if (!hasEnoughKi) {

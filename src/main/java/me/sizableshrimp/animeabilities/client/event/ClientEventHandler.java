@@ -6,8 +6,7 @@ import me.sizableshrimp.animeabilities.AnimeAbilitiesMod;
 import me.sizableshrimp.animeabilities.Registration;
 import me.sizableshrimp.animeabilities.capability.KiHolderCapability;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolderCapability;
-import me.sizableshrimp.animeabilities.mixin.LivingEntityAccessor;
-import me.sizableshrimp.animeabilities.mixin.PlayerRendererAccessor;
+import me.sizableshrimp.animeabilities.item.DragonBallItem;
 import me.sizableshrimp.animeabilities.network.KiChargePacket;
 import me.sizableshrimp.animeabilities.network.NetworkHandler;
 import me.sizableshrimp.animeabilities.network.UseSpiritBombPacket;
@@ -18,7 +17,6 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
@@ -84,9 +82,9 @@ public class ClientEventHandler {
 
         float bob = playerRenderer.getBob(player, partialTicks);
         float lerpedBodyRot = MathHelper.rotLerp(partialTicks, player.yBodyRotO, player.yBodyRot);
-        ((PlayerRendererAccessor) playerRenderer).invokeSetupRotations(player, matrixStack, bob, lerpedBodyRot, partialTicks);
+        playerRenderer.setupRotations(player, matrixStack, bob, lerpedBodyRot, partialTicks);
         matrixStack.scale(-1.0F, -1.0F, 1.0F);
-        ((PlayerRendererAccessor) playerRenderer).invokeScale(player, matrixStack, partialTicks);
+        playerRenderer.scale(player, matrixStack, partialTicks);
         matrixStack.translate(0.0D, -1.501F, 0.0D);
         matrixStack.translate(lerpedX + renderOffset.x(), lerpedY + renderOffset.y(), lerpedZ + renderOffset.z());
 
@@ -117,10 +115,9 @@ public class ClientEventHandler {
 
     private static boolean isDragonBallFloating(PlayerEntity player) {
         ModifiableAttributeInstance gravityAttribute = player.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
-        AttributeModifier slowFallingModifier = ((LivingEntityAccessor) player).getSLOW_FALLING();
         return gravityAttribute != null
-                && player.getDeltaMovement().y <= slowFallingModifier.getAmount()
-                && gravityAttribute.hasModifier(slowFallingModifier)
+                && player.getDeltaMovement().y <= DragonBallItem.ANIME_SLOW_FALLING.getAmount()
+                && gravityAttribute.hasModifier(DragonBallItem.ANIME_SLOW_FALLING)
                 && Registration.DRAGON_BALL.get().hasThisAbility(player);
     }
 
