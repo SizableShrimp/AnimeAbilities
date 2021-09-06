@@ -22,7 +22,6 @@ import org.lwjgl.opengl.GL11;
 
 @Mod.EventBusSubscriber(modid = AnimeAbilitiesMod.MODID, value = Dist.CLIENT)
 public class DragonBallRenderer {
-    public static final ResourceLocation SPHERE_MODEL = new ResourceLocation(AnimeAbilitiesMod.MODID, "block/sphere");
     public static final ResourceLocation KI_BAR = new ResourceLocation(AnimeAbilitiesMod.MODID, "textures/ki_bar.png");
 
     @SubscribeEvent

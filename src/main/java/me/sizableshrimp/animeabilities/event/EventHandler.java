@@ -1,6 +1,7 @@
-package me.sizableshrimp.animeabilities;
+package me.sizableshrimp.animeabilities.event;
 
 import com.tm.calemiutils.init.InitItems;
+import me.sizableshrimp.animeabilities.AnimeAbilitiesMod;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.item.ItemEntity;

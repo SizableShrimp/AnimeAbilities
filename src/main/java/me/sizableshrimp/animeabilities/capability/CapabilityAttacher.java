@@ -31,14 +31,18 @@ public abstract class CapabilityAttacher {
     }
 
     protected static <I extends INBTSerializable<T>, T extends INBT> void genericAttachCapability(AttachCapabilitiesEvent<?> event, I impl, Capability<I> capability, ResourceLocation location) {
+        genericAttachCapability(event, impl, capability, location, true);
+    }
+
+    protected static <I extends INBTSerializable<T>, T extends INBT> void genericAttachCapability(AttachCapabilitiesEvent<?> event, I impl, Capability<I> capability, ResourceLocation location, boolean save) {
         LazyOptional<I> storage = LazyOptional.of(() -> impl);
-        ICapabilityProvider provider = getProvider(impl, storage, capability);
+        ICapabilityProvider provider = getProvider(impl, storage, capability, save);
         event.addCapability(location, provider);
         event.addListener(storage::invalidate);
     }
 
-    protected static <I extends INBTSerializable<T>, T extends INBT> ICapabilitySerializable<T> getProvider(I impl, LazyOptional<I> storage, Capability<I> capability) {
-        return new ICapabilitySerializable<T>() {
+    protected static <I extends INBTSerializable<T>, T extends INBT> ICapabilityProvider getProvider(I impl, LazyOptional<I> storage, Capability<I> capability, boolean save) {
+        return save ? new ICapabilitySerializable<T>() {
             @Nonnull
             @Override
             public <C> LazyOptional<C> getCapability(@Nonnull Capability<C> cap, @Nullable Direction side) {
@@ -53,6 +57,12 @@ public abstract class CapabilityAttacher {
             @Override
             public void deserializeNBT(T nbt) {
                 impl.deserializeNBT(nbt);
+            }
+        } : new ICapabilityProvider() {
+            @Nonnull
+            @Override
+            public <C> LazyOptional<C> getCapability(@Nonnull Capability<C> cap, @Nullable Direction side) {
+                return cap == capability ? storage.cast() : LazyOptional.empty();
             }
         };
     }

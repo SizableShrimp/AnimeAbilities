@@ -4,14 +4,12 @@ import me.sizableshrimp.animeabilities.capability.ISyncableCapability;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
-public abstract class CapabilityStatusPacket {
+public abstract class CapabilityStatusPacket implements IPacket {
     private final int entityId;
     private final CompoundNBT tag;
 
@@ -25,11 +23,7 @@ public abstract class CapabilityStatusPacket {
     }
 
     protected static <T extends CapabilityStatusPacket> void register(SimpleChannel channel, int id, Class<T> packetClass, Function<PacketBuffer, T> readFunc) {
-        channel.messageBuilder(packetClass, id, NetworkDirection.PLAY_TO_CLIENT)
-                .encoder(CapabilityStatusPacket::write)
-                .decoder(readFunc)
-                .consumer(CapabilityStatusPacket::handle)
-                .add();
+        IPacket.register(channel, id, NetworkDirection.PLAY_TO_CLIENT, packetClass, readFunc);
     }
 
     public void write(PacketBuffer buf) {
@@ -40,8 +34,6 @@ public abstract class CapabilityStatusPacket {
     protected static <T extends CapabilityStatusPacket> T read(PacketBuffer buf, BiFunction<Integer, CompoundNBT, T> function) {
         return function.apply(buf.readInt(), buf.readNbt());
     }
-
-    public abstract void handle(Supplier<NetworkEvent.Context> ctx);
 
     public int getEntityId() {
         return entityId;

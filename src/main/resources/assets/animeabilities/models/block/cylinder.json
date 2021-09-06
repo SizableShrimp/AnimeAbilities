@@ -1,6 +1,6 @@
 {
   "loader": "forge:obj",
-  "model": "animeabilities:sphere.obj",
+  "model": "animeabilities:cylinder.obj",
   "ambientToFullbright": false,
   "diffuseLighting": false,
   "textures": {

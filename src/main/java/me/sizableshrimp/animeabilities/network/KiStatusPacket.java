@@ -7,8 +7,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
-import java.util.function.Supplier;
-
 public class KiStatusPacket extends CapabilityStatusPacket {
     private KiStatusPacket(int entityId, CompoundNBT tag) {
         super(entityId, tag);
@@ -23,8 +21,7 @@ public class KiStatusPacket extends CapabilityStatusPacket {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> ClientPacketHandler.handleCapabilityStatus(this, KiHolderCapability::getKiHolderUnwrap));
-        ctx.get().setPacketHandled(true);
+    public void handle(NetworkEvent.Context context) {
+        context.enqueueWork(() -> ClientPacketHandler.handleCapabilityStatus(this, KiHolderCapability::getKiHolderUnwrap));
     }
 }

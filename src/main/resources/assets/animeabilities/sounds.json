@@ -1,0 +1,11 @@
+{
+  "spirit_bomb_charge": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:spirit_bomb_charge",
+        "stream": false
+      }
+    ]
+  }
+}

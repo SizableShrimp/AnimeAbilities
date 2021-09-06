@@ -49,8 +49,8 @@ ordering="NONE"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
-modId="calemiutils"
-versionRange="[1.0,)"
+modId="obfuscate"
+versionRange="[0,)"
 mandatory=true
 ordering="NONE"
 side="BOTH"

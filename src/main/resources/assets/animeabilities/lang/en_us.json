@@ -1,7 +1,12 @@
 {
   "death.attack.one_punch": "%s got punched by %s the One Punch Man!",
+
   "item.animeabilities.one_punch_man": "One Punch Man Ability",
   "item.animeabilities.dragon_ball": "Dragon Ball Ability",
   "item.animeabilities.kaikoen_upgrade": "Dragon Ball Ability - Kaikoen Upgrade",
-  "item.animeabilities.super_saiyen_upgrade": "Dragon Ball Ability - Super Saiyen Upgrade"
+  "item.animeabilities.super_saiyen_upgrade": "Dragon Ball Ability - Super Saiyen Upgrade",
+
+  "key.categories.animeabilities": "Anime Abilities",
+  "key.animeabilities.charge_ki": "Charge Ki",
+  "key.animeabilities.use_spirit_bomb": "Use Spirit Bomb"
 }

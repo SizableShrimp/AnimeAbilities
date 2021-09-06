@@ -39,7 +39,7 @@ public class OnePunchManItem extends AbilityItem {
         LivingEntity target = event.getEntityLiving();
         PlayerEntity attacker = (PlayerEntity) event.getSource().getEntity();
 
-        if (!hasEmptyHand(attacker) || !hasThisAbility(attacker))
+        if (attacker == event.getSource().getEntity() || !hasEmptyHand(attacker) || !hasThisAbility(attacker))
             return;
 
         EntityDamageSource damageSource = new EntityDamageSource("one_punch", attacker) {

@@ -17,6 +17,9 @@ public class NetworkHandler {
 
     public static void register() {
         KiStatusPacket.register(INSTANCE, getNextId());
+        KiChargePacket.register(INSTANCE, getNextId());
+        SpiritBombStatusPacket.register(INSTANCE, getNextId());
+        UseSpiritBombPacket.register(INSTANCE, getNextId());
     }
 
     private static int getNextId() {
