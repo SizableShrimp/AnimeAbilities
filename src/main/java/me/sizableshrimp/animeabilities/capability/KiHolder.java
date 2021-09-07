@@ -8,30 +8,68 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 public class KiHolder implements ISyncableCapability {
-    private int ki = 500;
-    private int maxKi = 500;
+    private float ki = 500;
+    private float maxKi = 500;
+    private int kamehamehaRemainingAnimation = 0;
+    private int kiBlastLastUsedTime = 0;
     private final PlayerEntity player;
 
     public KiHolder(PlayerEntity player) {
         this.player = player;
     }
 
-    public int getKi() {
+    public float getKi() {
         return ki;
     }
 
-    public void setKi(int ki) {
+    public void setKi(float ki) {
         this.ki = ki;
         this.updateTracking();
     }
 
-    public int getMaxKi() {
+    public float getMaxKi() {
         return maxKi;
     }
 
-    public void setMaxKi(int maxKi) {
+    public void setMaxKi(float maxKi) {
         this.maxKi = maxKi;
         this.updateTracking();
+    }
+
+    public int getKamehamehaRemainingAnimation() {
+        return kamehamehaRemainingAnimation;
+    }
+
+    public boolean isUsingKamehameha() {
+        return kamehamehaRemainingAnimation > 0;
+    }
+
+    public void setKamehamehaRemainingAnimation(int kamehamehaRemainingAnimation, boolean sync) {
+        this.kamehamehaRemainingAnimation = kamehamehaRemainingAnimation;
+        if (sync)
+            this.updateTracking();
+    }
+
+    public int getMaxKiBlastAnimation() {
+        return 80;
+    }
+
+    public int getKiBlastLastUsedTime() {
+        return kiBlastLastUsedTime;
+    }
+
+    public void setKiBlastLastUsedTime(int kiBlastLastUsedTime, boolean sync) {
+        this.kiBlastLastUsedTime = kiBlastLastUsedTime;
+        if (sync)
+            this.updateTracking();
+    }
+
+    public boolean isPlayerOnCooldown() {
+        return kiBlastLastUsedTime + getKiBlastCooldownDuration() > player.tickCount;
+    }
+
+    public int getKiBlastCooldownDuration() {
+        return 20;
     }
 
     @Override
@@ -52,14 +90,22 @@ public class KiHolder implements ISyncableCapability {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
+    public CompoundNBT serializeNBT(boolean savingToDisk) {
         CompoundNBT tag = new CompoundNBT();
-        tag.putInt("Ki", ki);
+        tag.putFloat("Ki", ki);
+        tag.putFloat("MaxKi", maxKi);
+        tag.putInt("KamehamehaAnimation", kamehamehaRemainingAnimation);
+        if (!savingToDisk)
+            tag.putInt("KiBlastLastUsedTime", kiBlastLastUsedTime);
         return tag;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        this.ki = nbt.getInt("Ki");
+    public void deserializeNBT(CompoundNBT nbt, boolean readingFromDisk) {
+        this.ki = nbt.getFloat("Ki");
+        this.maxKi = nbt.getFloat("MaxKi");
+        this.kamehamehaRemainingAnimation = nbt.getInt("KiBlastAnimation");
+        if (!readingFromDisk)
+            this.kiBlastLastUsedTime = nbt.getInt("KiBlastLastUsedTime");
     }
 }

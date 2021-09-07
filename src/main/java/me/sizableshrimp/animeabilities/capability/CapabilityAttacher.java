@@ -49,14 +49,20 @@ public abstract class CapabilityAttacher {
                 return cap == capability ? storage.cast() : LazyOptional.empty();
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public T serializeNBT() {
-                return impl.serializeNBT();
+                return impl instanceof INBTSavable ? (T) ((INBTSavable<?>) impl).serializeNBT(true) : impl.serializeNBT();
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public void deserializeNBT(T nbt) {
-                impl.deserializeNBT(nbt);
+                if (impl instanceof INBTSavable) {
+                    ((INBTSavable<T>) impl).deserializeNBT(nbt, true);
+                } else {
+                    impl.deserializeNBT(nbt);
+                }
             }
         } : new ICapabilityProvider() {
             @Nonnull

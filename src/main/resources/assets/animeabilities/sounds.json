@@ -7,5 +7,41 @@
         "stream": false
       }
     ]
+  },
+  "boost_fly_jump": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:boost_fly_jump",
+        "stream": false
+      }
+    ]
+  },
+  "ki_charge": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:ki_charge",
+        "stream": false
+      }
+    ]
+  },
+  "ki_start_charge": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:ki_start_charge",
+        "stream": false
+      }
+    ]
+  },
+  "ki_blast": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:ki_blast",
+        "stream": false
+      }
+    ]
   }
 }

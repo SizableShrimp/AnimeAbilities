@@ -32,7 +32,7 @@ public class KiHolderCapability extends CapabilityAttacher {
     }
 
     @SubscribeEvent
-    public static void onAttachGravityHolderCap(AttachCapabilitiesEvent<Entity> event) {
+    public static void onAttachCapability(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getObject();
             genericAttachCapability(event, new KiHolder(player), KI_HOLDER_CAPABILITY, KI_HOLDER_RL);

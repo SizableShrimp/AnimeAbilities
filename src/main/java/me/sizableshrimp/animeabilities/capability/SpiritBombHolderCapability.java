@@ -32,7 +32,7 @@ public class SpiritBombHolderCapability extends CapabilityAttacher {
     }
 
     @SubscribeEvent
-    public static void onAttachGravityHolderCap(AttachCapabilitiesEvent<Entity> event) {
+    public static void onAttachCapability(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getObject();
             genericAttachCapability(event, new SpiritBombHolder(player), SPIRIT_BOMB_HOLDER_CAPABILITY, SPIRIT_BOMB_HOLDER_RL, false);

@@ -1,18 +1,18 @@
 package me.sizableshrimp.animeabilities.item;
 
 import me.sizableshrimp.animeabilities.Registration;
+import me.sizableshrimp.animeabilities.capability.KiHolder;
 import me.sizableshrimp.animeabilities.capability.KiHolderCapability;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolder;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolderCapability;
+import me.sizableshrimp.animeabilities.entity.KiBlastEntity;
 import me.sizableshrimp.animeabilities.entity.SpiritBombEntity;
+import me.sizableshrimp.animeabilities.network.UseKiBlastPacket;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.world.gen.Heightmap;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,6 +29,9 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
             AttributeModifier.Operation.ADDITION);
     public static final int SPIRIT_BOMB_KI_COST = 200;
     public static final int SPIRIT_BOMB_ANIMATION_DURATION = 200;
+    public static final int KI_BLAST_COST = 40;
+    public static final int KAMEHAMEHA_KI_COST = 100;
+    public static final int KAMEHAMEHA_ANIMATION_DURATION = 80;
 
     public enum UpgradeType implements IUpgradeType {
         KAIKOEN(Registration.KAIKOEN_UPGRADE), SUPER_SAIYEN(Registration.SUPER_SAIYEN_UPGRADE);
@@ -52,24 +55,9 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            checkGlide(event.player);
-        } else {
+        if (event.phase == TickEvent.Phase.END) {
             tickSpiritBomb(event.player);
-        }
-    }
-
-    private void checkGlide(PlayerEntity player) {
-        boolean canGlide = !player.abilities.mayfly
-                && Registration.DRAGON_BALL.get().hasThisAbility(player)
-                && player.getY() > player.level.getHeightmapPos(Heightmap.Type.WORLD_SURFACE, player.blockPosition()).getY() + 3;
-        ModifiableAttributeInstance gravity = player.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
-        if (canGlide) {
-            if (!gravity.hasModifier(ANIME_SLOW_FALLING))
-                gravity.addTransientModifier(ANIME_SLOW_FALLING);
-            player.fallDistance = 0.0F;
-        } else {
-            gravity.removeModifier(ANIME_SLOW_FALLING);
+            tickKamehameha(event.player);
         }
     }
 
@@ -90,7 +78,7 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
                 }
             } else {
                 // Use a portion of the ki cost for every tick its active, and stop if they don't have enough ki
-                boolean hasEnoughKi = useKi(player, SPIRIT_BOMB_KI_COST / SPIRIT_BOMB_ANIMATION_DURATION);
+                boolean hasEnoughKi = useKi(player, (float) SPIRIT_BOMB_KI_COST / SPIRIT_BOMB_ANIMATION_DURATION);
                 if (!hasEnoughKi) {
                     spiritBombHolder.setSpiritBombRemainingAnimation(0, false);
                 }
@@ -106,24 +94,49 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
         });
     }
 
+    private void tickKamehameha(PlayerEntity player) {
+        // KiHolderCapability.getKiHolder(player).ifPresent(kiHolder -> {
+        //     if (!kiHolder.isUsingKamehameha())
+        //         return;
+        //
+        //     int remaining = kiHolder.getKamehamehaRemainingAnimation() - 1;
+        //     kiHolder.setKamehamehaRemainingAnimation(remaining, false);
+        //
+        //     if (!player.level.isClientSide) {
+        //         // Use a portion of the ki cost for every tick its active, and stop if they don't have enough ki
+        //         boolean hasEnoughKi = useKi(player, (float) KAMEHAMEHA_KI_COST / KAMEHAMEHA_ANIMATION_DURATION);
+        //         if (!hasEnoughKi) {
+        //             kiHolder.setKamehamehaRemainingAnimation(0, false);
+        //         }
+        //         if (!kiHolder.isUsingKamehameha()) {
+        //             // Only sync once it reaches zero on the server to reduce packets sent
+        //             kiHolder.updateTracking();
+        //             if (hasEnoughKi) {
+        //                 player.level.addFreshEntity(new KamehamehaEntity(player));
+        //                 // player.level.playSound(null, player, SoundEvents.GENERIC_EXPLODE, SoundCategory.PLAYERS, 0.1F, 0.5F);
+        //             }
+        //         }
+        //     }
+        // });
+    }
+
     /**
      * true if the player had enough, false if they didn't
      */
-    public static boolean useKi(PlayerEntity player, int cost) {
+    public static boolean useKi(PlayerEntity player, float cost) {
         return hasEnoughKi(player, cost, true);
     }
 
     /**
      * true if the player has enough, false if they don't
      */
-    public static boolean hasEnoughKi(PlayerEntity player, int cost) {
+    public static boolean hasEnoughKi(PlayerEntity player, float cost) {
         return hasEnoughKi(player, cost, false);
     }
 
-
-    private static boolean hasEnoughKi(PlayerEntity player, int cost, boolean use) {
+    private static boolean hasEnoughKi(PlayerEntity player, float cost, boolean use) {
         return KiHolderCapability.getKiHolder(player).map(kiHolder -> {
-            int currentKi = kiHolder.getKi();
+            float currentKi = kiHolder.getKi();
             if (currentKi < cost)
                 return false;
 
@@ -137,16 +150,39 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
         return SpiritBombHolderCapability.getSpiritBombHolder(player).map(SpiritBombHolder::isUsingSpiritBomb).orElse(false);
     }
 
-    public boolean useSpiritBomb(PlayerEntity player) {
-        if (isUsingSpiritBomb(player) || (!hasUpgrade(player, UpgradeType.SUPER_SAIYEN) && !hasUpgrade(player, UpgradeType.KAIKOEN)) || !hasEnoughKi(player, SPIRIT_BOMB_KI_COST))
-            return false;
+    public static boolean isUsingKamehameha(PlayerEntity player) {
+        return KiHolderCapability.getKiHolder(player).map(KiHolder::isUsingKamehameha).orElse(false);
+    }
 
-        SpiritBombHolder spiritBombHolder = SpiritBombHolderCapability.getSpiritBombHolderUnwrap(player);
-        if (spiritBombHolder == null)
-            return false;
+    public static float getKamehamehaPercentage(PlayerEntity player) {
+        return KiHolderCapability.getKiHolder(player).map(kiHolder -> kiHolder.getKamehamehaRemainingAnimation() / (float) kiHolder.getMaxKiBlastAnimation()).orElse(0F);
+    }
 
-        spiritBombHolder.setSpiritBombRemainingAnimation(SPIRIT_BOMB_ANIMATION_DURATION, true);
-        return true;
+    public void useSpiritBomb(PlayerEntity player) {
+        if (isUsingSpiritBomb(player) || isUsingKamehameha(player) || !hasThisAbility(player)
+                || (!hasUpgrade(player, UpgradeType.SUPER_SAIYEN) && !hasUpgrade(player, UpgradeType.KAIKOEN))
+                || !hasEnoughKi(player, SPIRIT_BOMB_KI_COST))
+            return;
+
+        SpiritBombHolderCapability.getSpiritBombHolder(player).ifPresent(spiritBombHolder -> spiritBombHolder.setSpiritBombRemainingAnimation(SPIRIT_BOMB_ANIMATION_DURATION, true));
+    }
+
+    public void useKiBlast(PlayerEntity player) {
+        if (!UseKiBlastPacket.canKiBlast(player) || KiHolderCapability.getKiHolder(player).map(KiHolder::isPlayerOnCooldown).orElse(false) || !useKi(player, KI_BLAST_COST))
+            return;
+
+        KiHolderCapability.getKiHolder(player).ifPresent(kiHolder -> kiHolder.setKiBlastLastUsedTime(player.tickCount, true));
+        player.level.playSound(null, player, Registration.KI_BLAST_SOUND.get(), SoundCategory.PLAYERS, 1F, 1F);
+        player.level.addFreshEntity(new KiBlastEntity(player));
+    }
+
+    public void useKamehameha(PlayerEntity player) {
+        if (isUsingSpiritBomb(player) || isUsingKamehameha(player)
+                || !hasThisAbility(player) || !hasUpgrade(player, UpgradeType.SUPER_SAIYEN)
+                || !hasEnoughKi(player, KAMEHAMEHA_KI_COST))
+            return;
+
+        KiHolderCapability.getKiHolder(player).ifPresent(kiHolder -> kiHolder.setKamehamehaRemainingAnimation(kiHolder.getMaxKiBlastAnimation(), true));
     }
 
     public static int getSphereYOffset() {

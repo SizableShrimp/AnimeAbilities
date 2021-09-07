@@ -6,7 +6,12 @@
   "item.animeabilities.kaikoen_upgrade": "Dragon Ball Ability - Kaikoen Upgrade",
   "item.animeabilities.super_saiyen_upgrade": "Dragon Ball Ability - Super Saiyen Upgrade",
 
+  "entity.animeabilities.spirit_bomb": "Spirit Bomb",
+  "entity.animeabilities.ki_blast": "Ki Blast",
+
   "key.categories.animeabilities": "Anime Abilities",
   "key.animeabilities.charge_ki": "Charge Ki",
-  "key.animeabilities.use_spirit_bomb": "Use Spirit Bomb"
+  "key.animeabilities.ki_blast": "Ki Blast",
+  "key.animeabilities.use_spirit_bomb": "Use Spirit Bomb",
+  "key.animeabilities.boost": "Boost Flight"
 }

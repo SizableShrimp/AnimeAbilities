@@ -1,8 +1,6 @@
 package me.sizableshrimp.animeabilities.network;
 
 import me.sizableshrimp.animeabilities.Registration;
-import me.sizableshrimp.animeabilities.capability.KiHolderCapability;
-import me.sizableshrimp.animeabilities.item.DragonBallItem;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkDirection;

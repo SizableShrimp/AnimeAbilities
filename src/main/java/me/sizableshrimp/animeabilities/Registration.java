@@ -1,5 +1,6 @@
 package me.sizableshrimp.animeabilities;
 
+import me.sizableshrimp.animeabilities.entity.KiBlastEntity;
 import me.sizableshrimp.animeabilities.entity.SpiritBombEntity;
 import me.sizableshrimp.animeabilities.item.DragonBallItem;
 import me.sizableshrimp.animeabilities.item.OnePunchManItem;
@@ -38,9 +39,15 @@ public class Registration {
     public static final RegistryObject<BasicParticleType> DRAGONBALL_BOLT = PARTICLE_TYPES.register("dragonball_bolt", () -> new BasicParticleType(true));
 
     public static final RegistryObject<SoundEvent> SPIRIT_BOMB_CHARGE_SOUND = registerSound("spirit_bomb_charge");
+    public static final RegistryObject<SoundEvent> BOOST_FLY_JUMP_SOUND = registerSound("boost_fly_jump");
+    public static final RegistryObject<SoundEvent> KI_BLAST_SOUND = registerSound("ki_blast");
+    public static final RegistryObject<SoundEvent> KI_CHARGE_SOUND = registerSound("ki_charge");
+    public static final RegistryObject<SoundEvent> KI_START_CHARGE_SOUND = registerSound("ki_start_charge");
 
     public static final RegistryObject<EntityType<SpiritBombEntity>> SPIRIT_BOMB_ENTITY_TYPE = registerEntity("spirit_bomb",
             () -> EntityType.Builder.<SpiritBombEntity>of(SpiritBombEntity::new, EntityClassification.MISC).sized(1F, 1F));
+    public static final RegistryObject<EntityType<KiBlastEntity>> KI_BLAST_ENTITY_TYPE = registerEntity("ki_blast",
+            () -> EntityType.Builder.<KiBlastEntity>of(KiBlastEntity::new, EntityClassification.MISC).sized(0.7F, 0.7F));
 
     private static RegistryObject<SoundEvent> registerSound(String name) {
         return SOUND_EVENTS.register(name, () -> new SoundEvent(new ResourceLocation(AnimeAbilitiesMod.MODID, name)));

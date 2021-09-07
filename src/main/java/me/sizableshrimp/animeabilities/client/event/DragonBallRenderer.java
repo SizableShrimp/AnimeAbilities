@@ -43,8 +43,8 @@ public class DragonBallRenderer {
         int rightEdgeSpacer = 5;
         int topEdgeSpacer = 4;
         KiHolderCapability.getKiHolder(player).ifPresent(kiHolder -> {
-            int ki = kiHolder.getKi();
-            int maxKi = kiHolder.getMaxKi();
+            int ki = (int) kiHolder.getKi();
+            int maxKi = (int) kiHolder.getMaxKi();
             if (textRender) {
                 String kiMsg = ki + "/" + maxKi + " Ki";
                 int x = scaledWidth - (barWidth / 2) - (Minecraft.getInstance().font.width(kiMsg) / 2) - rightEdgeSpacer;

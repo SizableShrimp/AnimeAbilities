@@ -20,6 +20,8 @@ public class NetworkHandler {
         KiChargePacket.register(INSTANCE, getNextId());
         SpiritBombStatusPacket.register(INSTANCE, getNextId());
         UseSpiritBombPacket.register(INSTANCE, getNextId());
+        BoostFlyPacket.register(INSTANCE, getNextId());
+        UseKiBlastPacket.register(INSTANCE, getNextId());
     }
 
     private static int getNextId() {

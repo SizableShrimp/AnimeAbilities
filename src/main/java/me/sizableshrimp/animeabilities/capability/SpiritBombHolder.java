@@ -48,14 +48,14 @@ public class SpiritBombHolder implements ISyncableCapability {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
+    public CompoundNBT serializeNBT(boolean savingToDisk) {
         CompoundNBT tag = new CompoundNBT();
         tag.putInt("RemainingAnimation", this.spiritBombRemainingAnimation);
         return tag;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundNBT nbt, boolean readingFromDisk) {
         this.spiritBombRemainingAnimation = nbt.getInt("RemainingAnimation");
     }
 }
