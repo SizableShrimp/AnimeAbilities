@@ -42,6 +42,8 @@ public abstract class CapabilityAttacher {
     }
 
     protected static <I extends INBTSerializable<T>, T extends INBT> ICapabilityProvider getProvider(I impl, LazyOptional<I> storage, Capability<I> capability, boolean save) {
+        if (capability == null)
+            throw new NullPointerException();
         return save ? new ICapabilitySerializable<T>() {
             @Nonnull
             @Override

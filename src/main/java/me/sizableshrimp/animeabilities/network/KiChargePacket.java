@@ -28,7 +28,10 @@ public class KiChargePacket implements IPacket {
     }
 
     public static boolean canChargeKi(PlayerEntity player) {
-        return player != null && !DragonBallItem.isUsingSpiritBomb(player) && Registration.DRAGON_BALL.get().hasThisAbility(player);
+        return player != null && Registration.DRAGON_BALL.get().hasThisAbility(player)
+                && !DragonBallItem.isUsingSpiritBomb(player)
+                && !DragonBallItem.isUsingKamehameha(player)
+                && !Registration.DRAGON_BALL.get().isBoostFlying(player);
     }
 
     @Override

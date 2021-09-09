@@ -1,6 +1,8 @@
 package me.sizableshrimp.animeabilities;
 
 import me.sizableshrimp.animeabilities.capability.KiHolderCapability;
+import me.sizableshrimp.animeabilities.capability.SpiritBombHolderCapability;
+import me.sizableshrimp.animeabilities.capability.TitanHolderCapability;
 import me.sizableshrimp.animeabilities.network.NetworkHandler;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -21,6 +23,8 @@ public class AnimeAbilitiesMod {
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         KiHolderCapability.register();
+        SpiritBombHolderCapability.register();
+        TitanHolderCapability.register();
         NetworkHandler.register();
     }
 }

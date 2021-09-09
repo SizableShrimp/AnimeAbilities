@@ -1,9 +1,9 @@
 {
-  "spirit_bomb_charge": {
+  "spirit_bomb_explode": {
     "category": "player",
     "sounds": [
       {
-        "name": "animeabilities:spirit_bomb_charge",
+        "name": "animeabilities:spirit_bomb_explode",
         "stream": false
       }
     ]
@@ -40,6 +40,51 @@
     "sounds": [
       {
         "name": "animeabilities:ki_blast",
+        "stream": false
+      }
+    ]
+  },
+  "exit_super_saiyan": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:exit_super_saiyan",
+        "stream": false
+      }
+    ]
+  },
+  "boost_fly_boost": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:boost_fly_boost",
+        "stream": false
+      }
+    ]
+  },
+  "kamehameha_charge": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:kamehameha_charge",
+        "stream": false
+      }
+    ]
+  },
+  "kamehameha_long_wave": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:kamehameha_long_wave",
+        "stream": false
+      }
+    ]
+  },
+  "kamehameha_short_wave": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "animeabilities:kamehameha_short_wave",
         "stream": false
       }
     ]

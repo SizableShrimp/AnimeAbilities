@@ -22,6 +22,8 @@ public class NetworkHandler {
         UseSpiritBombPacket.register(INSTANCE, getNextId());
         BoostFlyPacket.register(INSTANCE, getNextId());
         UseKiBlastPacket.register(INSTANCE, getNextId());
+        SwitchTitanPacket.register(INSTANCE, getNextId());
+        TitanStatusPacket.register(INSTANCE, getNextId());
     }
 
     private static int getNextId() {

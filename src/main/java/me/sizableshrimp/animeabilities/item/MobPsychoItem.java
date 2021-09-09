@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 public class MobPsychoItem extends UpgradeableAbilityItem<MobPsychoItem.UpgradeType> {
     public enum UpgradeType implements IUpgradeType {
         ONE_THIRD(Registration.ONE_THIRD_UPGRADE), TWO_THIRD(Registration.TWO_THIRD_UPGRADE),
-        NINETY_NINE(Registration.NINETY_NINE_UPGRADE), QUESTION_MARKS(Registration.QUESTION_MARKS_UPGRADE);
+        THREE_THIRD(Registration.THREE_THIRD_UPGRADE), QUESTION_MARKS(Registration.QUESTION_MARKS_UPGRADE);
 
         private final Supplier<Item> upgradeItem;
 

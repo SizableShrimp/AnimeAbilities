@@ -6,12 +6,16 @@ import me.sizableshrimp.animeabilities.AnimeAbilitiesMod;
 import me.sizableshrimp.animeabilities.Registration;
 import me.sizableshrimp.animeabilities.capability.KiHolderCapability;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolderCapability;
+import me.sizableshrimp.animeabilities.capability.TitanHolder;
+import me.sizableshrimp.animeabilities.capability.TitanHolderCapability;
 import me.sizableshrimp.animeabilities.client.AnimeKeyBindings;
 import me.sizableshrimp.animeabilities.client.sound.KiChargeSound;
+import me.sizableshrimp.animeabilities.entity.SpiritBombEntity;
 import me.sizableshrimp.animeabilities.item.DragonBallItem;
 import me.sizableshrimp.animeabilities.network.BoostFlyPacket;
 import me.sizableshrimp.animeabilities.network.KiChargePacket;
 import me.sizableshrimp.animeabilities.network.NetworkHandler;
+import me.sizableshrimp.animeabilities.network.SwitchTitanPacket;
 import me.sizableshrimp.animeabilities.network.UseKiBlastPacket;
 import me.sizableshrimp.animeabilities.network.UseSpiritBombPacket;
 import net.minecraft.client.Minecraft;
@@ -22,10 +26,12 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
@@ -47,20 +53,33 @@ public class ClientEventHandler {
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
         Minecraft mc = Minecraft.getInstance();
-        if (event.getAction() == GLFW.GLFW_PRESS && event.getKey() == AnimeKeyBindings.KI_CHARGE.getKey().getValue()
-                && AnimeKeyBindings.KI_CHARGE.isConflictContextAndModifierActive() && KiChargePacket.canChargeKi(mc.player)) {
-            if (mc.player != null && mc.level != null) {
-                mc.level.playSound(mc.player, mc.player, Registration.KI_START_CHARGE_SOUND.get(), SoundCategory.PLAYERS, 1F, 1F);
-                mc.getSoundManager().playDelayed(new KiChargeSound(p -> AnimeKeyBindings.KI_CHARGE.isDown(), p -> 0.7F), 5);
-            }
+        if (mc.player == null)
+            return;
+
+        if (didPress(event, AnimeKeyBindings.KI_CHARGE) && KiChargePacket.canChargeKi(mc.player)) {
+            mc.player.level.playSound(mc.player, mc.player, Registration.KI_START_CHARGE_SOUND.get(), SoundCategory.PLAYERS, 1F, 1F);
+            mc.getSoundManager().playDelayed(new KiChargeSound(p -> AnimeKeyBindings.KI_CHARGE.isDown(), 0.7F), 5);
+        } else if (didPress(event, AnimeKeyBindings.SWITCH_TITAN) && SwitchTitanPacket.canSwitchTitan(mc.player)) {
+            NetworkHandler.INSTANCE.sendToServer(new SwitchTitanPacket());
         }
     }
+
+    private static boolean didPress(InputEvent.KeyInputEvent event, KeyBinding keyBinding) {
+        return event.getAction() == GLFW.GLFW_PRESS
+                && event.getKey() == keyBinding.getKey().getValue()
+                && keyBinding.isConflictContextAndModifierActive();
+    }
+
+    private static int boostTickCooldown = 0;
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (event.phase != TickEvent.Phase.END || mc.player == null)
             return;
+
+        if (boostTickCooldown > 0)
+            boostTickCooldown--;
 
         if (AnimeKeyBindings.KI_CHARGE.isDown() && KiChargePacket.canChargeKi(mc.player)) {
             KiHolderCapability.getKiHolder(mc.player).ifPresent(kiHolder -> {
@@ -93,10 +112,11 @@ public class ClientEventHandler {
                 }
                 // NetworkHandler.INSTANCE.sendToServer(new BoostFlyPacket(true));
                 mc.player.startFallFlying();
-                mc.getSoundManager().play(new KiChargeSound(LivingEntity::isFallFlying, p -> isBoostHeld() ? 0.7F : 0.5F));
+                mc.getSoundManager().play(new KiChargeSound(LivingEntity::isFallFlying, 0.5F));
             }
-            if (mc.player.isFallFlying() && mc.player.tickCount % 4 == 0)
+            if (mc.player.isFallFlying()) {
                 boost(mc.player, boostHeld);
+            }
         } else if (!AnimeKeyBindings.BOOST.isDown() && mc.player.isFallFlying() && !mc.player.getItemBySlot(EquipmentSlotType.CHEST).canElytraFly(mc.player)) {
             mc.player.stopFallFlying();
             NetworkHandler.INSTANCE.sendToServer(new BoostFlyPacket(false));
@@ -108,6 +128,14 @@ public class ClientEventHandler {
     }
 
     private static void boost(PlayerEntity player, boolean boostHeld) {
+        if (boostHeld) {
+            if (boostTickCooldown > 0) {
+                boostHeld = false;
+            } else {
+                player.level.playSound(player, player, Registration.BOOST_FLY_BOOST_SOUND.get(), SoundCategory.PLAYERS, 0.5F, 1F);
+                boostTickCooldown = 30;
+            }
+        }
         double minBoost = boostHeld ? 1.5 : 0.5;
         if (player.getDeltaMovement().length() < minBoost) {
             player.setDeltaMovement(player.getDeltaMovement().add(player.getLookAngle()));
@@ -124,15 +152,19 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void onPlaySound(PlaySoundEvent event) {
-        if (isDragonBallFlying() && event.getSound() instanceof ElytraSound) {
+        if (isLocalPlayerBoostFlying() && event.getSound() instanceof ElytraSound) {
+            event.setResultSound(null);
+        }
+
+        if (event.getSound().getLocation().equals(SoundEvents.GENERIC_EXPLODE.getLocation()) && SpiritBombEntity.cancelNextExplosionSound) {
+            SpiritBombEntity.cancelNextExplosionSound = false;
             event.setResultSound(null);
         }
     }
 
-    public static boolean isDragonBallFlying() {
+    public static boolean isLocalPlayerBoostFlying() {
         Minecraft mc = Minecraft.getInstance();
-        return AnimeKeyBindings.BOOST.isDown() && mc.player != null && Registration.DRAGON_BALL.get().hasThisAbility(mc.player)
-                && mc.player.isFallFlying();
+        return AnimeKeyBindings.BOOST.isDown() && mc.player != null && Registration.DRAGON_BALL.get().isBoostFlying(mc.player);
     }
 
     @SubscribeEvent
@@ -177,6 +209,15 @@ public class ClientEventHandler {
     public static void onPlayerModelRenderPre(PlayerModelEvent.Render.Pre event) {
         PlayerModel<?> playerModel = event.getModelPlayer();
         PlayerEntity player = event.getPlayer();
+        TitanHolderCapability.getTitanHolder(player).ifPresent(titanHolder -> {
+            TitanHolder.Type type = titanHolder.getType();
+            if (type == null)
+                return;
+            float scale = type.getScale() / 0.9375F/* * 2.8F*/;
+            event.getMatrixStack().translate(0, -type.getScale() * 1.4F, 0);
+            event.getMatrixStack().scale(scale, scale, scale);
+            event.getMatrixStack().pushPose();
+        });
         // if (isDragonBallFloating(player)) {
         //     double horizMovement = player.getDirection() == Direction.EAST || player.getDirection() == Direction.WEST
         //             ? player.getDeltaMovement().x()
@@ -212,6 +253,9 @@ public class ClientEventHandler {
         // if (isDragonBallFloating(event.getPlayer())) {
         //     event.getMatrixStack().popPose();
         // }
+        TitanHolderCapability.getTitanHolder(event.getPlayer()).ifPresent(titanHolder -> {
+            event.getMatrixStack().popPose();
+        });
     }
 
     // private static boolean isMovingHorizontally(PlayerEntity player) {

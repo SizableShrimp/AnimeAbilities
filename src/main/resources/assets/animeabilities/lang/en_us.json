@@ -1,10 +1,18 @@
 {
   "death.attack.one_punch": "%s got punched by %s the One Punch Man!",
 
+  "item.animeabilities.attack_on_titan": "Attack on Titan Ability",
+  "item.animeabilities.armored_upgrade": "Attack on Titan Ability (Armored Upgrade)",
+  "item.animeabilities.colossal_upgrade": "Attack on Titan Ability (Colossal Upgrade)",
   "item.animeabilities.one_punch_man": "One Punch Man Ability",
   "item.animeabilities.dragon_ball": "Dragon Ball Ability",
-  "item.animeabilities.kaikoen_upgrade": "Dragon Ball Ability - Kaikoen Upgrade",
-  "item.animeabilities.super_saiyen_upgrade": "Dragon Ball Ability - Super Saiyen Upgrade",
+  "item.animeabilities.kaioken_upgrade": "Dragon Ball Ability (Kaioken Upgrade)",
+  "item.animeabilities.super_saiyan_upgrade": "Dragon Ball Ability (Super Saiyan Upgrade)",
+  "item.animeabilities.mob_psycho": "Mob Psycho Ability",
+  "item.animeabilities.one_third_upgrade": "Mob Psycho Ability (33% Upgrade)",
+  "item.animeabilities.two_third_upgrade": "Mob Psycho Ability (66% Upgrade)",
+  "item.animeabilities.three_third_upgrade": "Mob Psycho Ability (99% Upgrade)",
+  "item.animeabilities.question_marks_upgrade": "Mob Psycho Ability (??? Upgrade)",
 
   "entity.animeabilities.spirit_bomb": "Spirit Bomb",
   "entity.animeabilities.ki_blast": "Ki Blast",
@@ -13,5 +21,7 @@
   "key.animeabilities.charge_ki": "Charge Ki",
   "key.animeabilities.ki_blast": "Ki Blast",
   "key.animeabilities.use_spirit_bomb": "Use Spirit Bomb",
-  "key.animeabilities.boost": "Boost Flight"
+  "key.animeabilities.boost": "Boost Flight",
+  "key.animeabilities.switch_titan": "Switch Titan",
+  "key.animeabilities.mind_move": "Mob Psycho Mind Move"
 }

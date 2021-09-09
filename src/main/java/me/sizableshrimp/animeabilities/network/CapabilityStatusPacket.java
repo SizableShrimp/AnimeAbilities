@@ -19,7 +19,7 @@ public abstract class CapabilityStatusPacket implements IPacket {
     }
 
     protected CapabilityStatusPacket(int entityId, ISyncableCapability capability) {
-        this(entityId, capability.serializeNBT());
+        this(entityId, capability.serializeNBT(false));
     }
 
     protected static <T extends CapabilityStatusPacket> void register(SimpleChannel channel, int id, Class<T> packetClass, Function<PacketBuffer, T> readFunc) {

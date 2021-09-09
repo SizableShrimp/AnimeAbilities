@@ -3,6 +3,7 @@ package me.sizableshrimp.animeabilities.client.renderer.layer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import me.sizableshrimp.animeabilities.AnimeAbilitiesMod;
+import me.sizableshrimp.animeabilities.Registration;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolder;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolderCapability;
 import me.sizableshrimp.animeabilities.client.AnimeKeyBindings;
@@ -47,7 +48,9 @@ public class DragonBallLayer extends LayerRenderer<AbstractClientPlayerEntity, P
         if (DragonBallItem.isUsingSpiritBomb(player)) {
             renderSpiritBomb(matrixStack, buffer, player, packedLight);
         }
-        if ((AnimeKeyBindings.KI_CHARGE.isDown() && KiChargePacket.canChargeKi(Minecraft.getInstance().player)) || ClientEventHandler.isDragonBallFlying()) {
+        Minecraft mc = Minecraft.getInstance();
+        if ((AnimeKeyBindings.KI_CHARGE.isDown() && KiChargePacket.canChargeKi(mc.player))
+                || (Registration.DRAGON_BALL.get().isBoostFlying(player) && (mc.player != player || !mc.options.getCameraType().isFirstPerson()))) {
             renderAura(matrixStack, buffer, player, packedLight, 0xFFFFDD00);
         }
         // renderKamehameha(matrixStack, buffer, player, packedLight, partialTicks, netYRot);

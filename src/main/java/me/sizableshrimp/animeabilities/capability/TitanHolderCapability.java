@@ -17,26 +17,28 @@ import net.minecraftforge.fml.common.Mod;
 import javax.annotation.Nullable;
 
 @Mod.EventBusSubscriber(modid = AnimeAbilitiesMod.MODID)
-public class KiHolderCapability extends CapabilityAttacher {
-    private static final Class<KiHolder> CAPABILITY_CLASS = KiHolder.class;
-    @CapabilityInject(KiHolder.class) // HAS to be public!
-    public static final Capability<KiHolder> KI_HOLDER_CAPABILITY = null;
-    private static final ResourceLocation KI_HOLDER_RL = new ResourceLocation(AnimeAbilitiesMod.MODID, "ki_holder");
+public class TitanHolderCapability extends CapabilityAttacher {
+    private static final Class<TitanHolder> CAPABILITY_CLASS = TitanHolder.class;
+    @CapabilityInject(TitanHolder.class) // HAS to be public!
+    public static final Capability<TitanHolder> TITAN_HOLDER_CAPABILITY = null;
+    private static final ResourceLocation TITAN_HOLDER_RL = new ResourceLocation(AnimeAbilitiesMod.MODID, "titan_holder");
 
     @Nullable
-    public static KiHolder getKiHolderUnwrap(PlayerEntity player) {
-        return getKiHolder(player).orElse(null);
+    public static TitanHolder getTitanHolderUnwrap(PlayerEntity player) {
+        return getTitanHolder(player).orElse(null);
     }
 
-    public static LazyOptional<KiHolder> getKiHolder(PlayerEntity player) {
-        return player.getCapability(KI_HOLDER_CAPABILITY);
+    public static LazyOptional<TitanHolder> getTitanHolder(PlayerEntity player) {
+        return player.getCapability(TITAN_HOLDER_CAPABILITY);
     }
 
     @SubscribeEvent
     public static void onAttachCapability(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getObject();
-            genericAttachCapability(event, new KiHolder(player), KI_HOLDER_CAPABILITY, KI_HOLDER_RL);
+            genericAttachCapability(event, new TitanHolder(player), TITAN_HOLDER_CAPABILITY, TITAN_HOLDER_RL, false);
+            // Manually refresh dimensions again since setting up the dimensions for the first time happens before cap gathering
+            player.refreshDimensions();
         }
     }
 
@@ -44,7 +46,7 @@ public class KiHolderCapability extends CapabilityAttacher {
     public static void onEntityJoinWorld(EntityJoinWorldEvent event) {
         if (event.getEntity() instanceof ServerPlayerEntity) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getEntity();
-            getKiHolder(serverPlayer).ifPresent(kiHolder -> kiHolder.sendPlayerUpdatePacket(serverPlayer));
+            getTitanHolder(serverPlayer).ifPresent(titanHolder -> titanHolder.sendPlayerUpdatePacket(serverPlayer));
         }
     }
 
@@ -52,7 +54,7 @@ public class KiHolderCapability extends CapabilityAttacher {
     public static void onPlayerStartTracking(PlayerEvent.StartTracking event) {
         if (event.getTarget() instanceof PlayerEntity) {
             PlayerEntity playerToTrack = (PlayerEntity) event.getTarget();
-            getKiHolder(playerToTrack).ifPresent(kiHolder -> kiHolder.sendPlayerUpdatePacket((ServerPlayerEntity) event.getPlayer()));
+            getTitanHolder(playerToTrack).ifPresent(titanHolder -> titanHolder.sendPlayerUpdatePacket((ServerPlayerEntity) event.getPlayer()));
         }
     }
 

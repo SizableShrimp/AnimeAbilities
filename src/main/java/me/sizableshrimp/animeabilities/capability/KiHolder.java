@@ -1,21 +1,17 @@
 package me.sizableshrimp.animeabilities.capability;
 
 import me.sizableshrimp.animeabilities.network.KiStatusPacket;
-import me.sizableshrimp.animeabilities.network.NetworkHandler;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraftforge.fml.network.PacketDistributor;
 
-public class KiHolder implements ISyncableCapability {
+public class KiHolder extends PlayerCapability {
     private float ki = 500;
     private float maxKi = 500;
     private int kamehamehaRemainingAnimation = 0;
     private int kiBlastLastUsedTime = 0;
-    private final PlayerEntity player;
 
     public KiHolder(PlayerEntity player) {
-        this.player = player;
+        super(player);
     }
 
     public float getKi() {
@@ -50,7 +46,7 @@ public class KiHolder implements ISyncableCapability {
             this.updateTracking();
     }
 
-    public int getMaxKiBlastAnimation() {
+    public int getMaxKamehamehaAnimation() {
         return 80;
     }
 
@@ -73,20 +69,8 @@ public class KiHolder implements ISyncableCapability {
     }
 
     @Override
-    public void updateTracking() {
-        if (player.level.isClientSide)
-            return;
-        NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), this.createUpdatePacket());
-    }
-
-    @Override
     public KiStatusPacket createUpdatePacket() {
         return new KiStatusPacket(player.getId(), this);
-    }
-
-    @Override
-    public void sendPlayerUpdatePacket(ServerPlayerEntity serverPlayer) {
-        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), this.createUpdatePacket());
     }
 
     @Override

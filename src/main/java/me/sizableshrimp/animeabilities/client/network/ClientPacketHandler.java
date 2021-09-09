@@ -12,7 +12,7 @@ public class ClientPacketHandler {
     public static <T extends Entity> void handleCapabilityStatus(CapabilityStatusPacket packet, Function<T, ISyncableCapability> function) {
         ISyncableCapability capability = function.apply(getEntity(packet));
         if (capability != null)
-            capability.deserializeNBT(packet.getTag());
+            capability.deserializeNBT(packet.getTag(), false);
     }
 
     private static <T extends Entity> T getEntity(CapabilityStatusPacket packet) {

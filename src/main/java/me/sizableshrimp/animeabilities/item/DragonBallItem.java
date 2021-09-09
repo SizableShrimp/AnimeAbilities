@@ -34,7 +34,7 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
     public static final int KAMEHAMEHA_ANIMATION_DURATION = 80;
 
     public enum UpgradeType implements IUpgradeType {
-        KAIKOEN(Registration.KAIKOEN_UPGRADE), SUPER_SAIYEN(Registration.SUPER_SAIYEN_UPGRADE);
+        KAIOKEN(Registration.KAIOKEN_UPGRADE), SUPER_SAIYAN(Registration.SUPER_SAIYAN_UPGRADE);
 
         private final Supplier<Item> upgradeItem;
 
@@ -69,7 +69,7 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
             spiritBombHolder.setSpiritBombRemainingAnimation(remaining, false);
             if (player.level.isClientSide) {
                 if (remaining + 1 == SPIRIT_BOMB_ANIMATION_DURATION) {
-                    player.level.playSound(player, player, Registration.SPIRIT_BOMB_CHARGE_SOUND.get(), SoundCategory.PLAYERS, 0.1F, 0.5F);
+                    // player.level.playSound(player, player, Registration.SPIRIT_BOMB_CHARGE_SOUND.get(), SoundCategory.PLAYERS, 0.1F, 0.5F);
                 }
                 double scale = (SPIRIT_BOMB_ANIMATION_DURATION - remaining) / (double) SPIRIT_BOMB_ANIMATION_DURATION;
                 if (player.getRandom().nextDouble() < scale) {
@@ -155,12 +155,16 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
     }
 
     public static float getKamehamehaPercentage(PlayerEntity player) {
-        return KiHolderCapability.getKiHolder(player).map(kiHolder -> kiHolder.getKamehamehaRemainingAnimation() / (float) kiHolder.getMaxKiBlastAnimation()).orElse(0F);
+        return KiHolderCapability.getKiHolder(player).map(kiHolder -> kiHolder.getKamehamehaRemainingAnimation() / (float) kiHolder.getMaxKamehamehaAnimation()).orElse(0F);
+    }
+
+    public boolean isBoostFlying(PlayerEntity player) {
+        return hasThisAbility(player) && player.isFallFlying();
     }
 
     public void useSpiritBomb(PlayerEntity player) {
         if (isUsingSpiritBomb(player) || isUsingKamehameha(player) || !hasThisAbility(player)
-                || (!hasUpgrade(player, UpgradeType.SUPER_SAIYEN) && !hasUpgrade(player, UpgradeType.KAIKOEN))
+                || (!hasUpgrade(player, UpgradeType.SUPER_SAIYAN) && !hasUpgrade(player, UpgradeType.KAIOKEN))
                 || !hasEnoughKi(player, SPIRIT_BOMB_KI_COST))
             return;
 
@@ -178,11 +182,11 @@ public class DragonBallItem extends UpgradeableAbilityItem<DragonBallItem.Upgrad
 
     public void useKamehameha(PlayerEntity player) {
         if (isUsingSpiritBomb(player) || isUsingKamehameha(player)
-                || !hasThisAbility(player) || !hasUpgrade(player, UpgradeType.SUPER_SAIYEN)
+                || !hasThisAbility(player) || !hasUpgrade(player, UpgradeType.SUPER_SAIYAN)
                 || !hasEnoughKi(player, KAMEHAMEHA_KI_COST))
             return;
 
-        KiHolderCapability.getKiHolder(player).ifPresent(kiHolder -> kiHolder.setKamehamehaRemainingAnimation(kiHolder.getMaxKiBlastAnimation(), true));
+        KiHolderCapability.getKiHolder(player).ifPresent(kiHolder -> kiHolder.setKamehamehaRemainingAnimation(kiHolder.getMaxKamehamehaAnimation(), true));
     }
 
     public static int getSphereYOffset() {

@@ -5,6 +5,8 @@
   "refmap": "${mod_id}.refmap.json",
   "mixins": [
   ],
-  "client": [],
+  "client": [
+    "ActiveRenderInfoMixin"
+  ],
   "minVersion": "0.8"
 }
