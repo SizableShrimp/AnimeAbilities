@@ -14,7 +14,7 @@ public class KiBlastRenderer extends EntityRenderer<KiBlastEntity> {
 
     @Override
     public void render(KiBlastEntity entity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
-        renderKiBlast(entity.xRot, entity.yRot, matrixStack, buffer, packedLight);
+        renderKiBlast(matrixStack, buffer, packedLight);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class KiBlastRenderer extends EntityRenderer<KiBlastEntity> {
         return null;
     }
 
-    public static void renderKiBlast(float xRot, float yRot, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+    public static void renderKiBlast(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
         matrixStack.pushPose();
         matrixStack.scale(0.4F, 0.4F, 0.4F);
         OBJRenderer.renderSphere(matrixStack, buffer, packedLight, 0x5FFFDD00);

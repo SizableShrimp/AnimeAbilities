@@ -200,7 +200,7 @@ dependencies {
 
     implementation fg.deobf('curse.maven:calemis-utilities-320196:3391177')
 
-    implementation fg.deobf('curse.maven:demonslayer-471263:3432253')
+    // implementation fg.deobf('curse.maven:demonslayer-471263:3432253')
 
     implementation fg.deobf('curse.maven:obfuscate-289380:3336021')
 

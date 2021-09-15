@@ -20,7 +20,8 @@ public class KiBlastEntity extends AbstractKiEntity {
     @Override
     protected void onHitEntity(EntityRayTraceResult result) {
         Entity target = result.getEntity();
-        target.hurt(DamageSource.thrown(this, this.getOwner()), 5F);
+        if (!this.level.isClientSide)
+            target.hurt(DamageSource.thrown(this, this.getOwner()), 5F);
 
         super.onHitEntity(result);
     }

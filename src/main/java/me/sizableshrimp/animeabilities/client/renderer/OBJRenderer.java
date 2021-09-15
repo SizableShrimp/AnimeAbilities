@@ -1,6 +1,7 @@
 package me.sizableshrimp.animeabilities.client.renderer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import me.sizableshrimp.animeabilities.AnimeAbilitiesMod;
 import me.sizableshrimp.animeabilities.client.util.ColorUtil;
@@ -38,6 +39,7 @@ public class OBJRenderer {
         MatrixStack.Entry matrixEntry = matrixStack.last();
         ColorUtil.ColorData color = ColorUtil.unpackColor(packedColor);
 
+        RenderSystem.enableBlend();
         for (BakedQuad quad : quads) {
             vertexBuilder.addVertexData(matrixEntry, quad, color.r(), color.g(), color.b(), color.alpha(), packedLight, OverlayTexture.NO_OVERLAY, true);
         }

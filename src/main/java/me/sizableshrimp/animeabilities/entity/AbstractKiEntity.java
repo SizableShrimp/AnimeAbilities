@@ -9,17 +9,19 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
-public abstract class AbstractKiEntity extends ProjectileEntity {
+public abstract class AbstractKiEntity extends ProjectileEntity implements IEntityAdditionalSpawnData {
     protected AbstractKiEntity(EntityType<? extends AbstractKiEntity> type, World world) {
         super(type, world);
     }
@@ -145,6 +147,25 @@ public abstract class AbstractKiEntity extends ProjectileEntity {
     protected void readAdditionalSaveData(CompoundNBT compound) {
         super.readAdditionalSaveData(compound);
         this.tickCount = compound.getInt("Age");
+    }
+
+    @Override
+    public void writeSpawnData(PacketBuffer buf) {
+        Entity owner = this.getOwner();
+        buf.writeBoolean(owner != null);
+        if (owner != null) {
+            buf.writeInt(owner.getId());
+        }
+    }
+
+    @Override
+    public void readSpawnData(PacketBuffer buf) {
+        if (buf.readBoolean()) {
+            int ownerId = buf.readInt();
+            Entity owner = this.level.getEntity(ownerId);
+            if (owner != null)
+                this.setOwner(owner);
+        }
     }
 
     @Override

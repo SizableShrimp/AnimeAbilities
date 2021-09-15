@@ -1,6 +1,8 @@
 package me.sizableshrimp.animeabilities.item;
 
 import me.sizableshrimp.animeabilities.Registration;
+import me.sizableshrimp.animeabilities.network.MindMovePacket;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 
 import java.util.function.Supplier;
@@ -25,5 +27,10 @@ public class MobPsychoItem extends UpgradeableAbilityItem<MobPsychoItem.UpgradeT
     public MobPsychoItem(Properties properties) {
         super(properties, UpgradeType.values());
         // MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    public void mindMove(PlayerEntity player, boolean start) {
+        if (start && !MindMovePacket.canMindMove(player))
+            return;
     }
 }

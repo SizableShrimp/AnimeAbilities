@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.ParticleType;
 import net.minecraft.util.ResourceLocation;
@@ -28,18 +29,18 @@ public class Registration {
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, AnimeAbilitiesMod.MODID);
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, AnimeAbilitiesMod.MODID);
 
-    public static final RegistryObject<AttackOnTitanItem> ATTACK_ON_TITAN = ITEMS.register("attack_on_titan", () -> new AttackOnTitanItem(new Item.Properties()));
-    public static final RegistryObject<Item> ARMORED_TITAN_UPGRADE = ITEMS.register("armored_upgrade",  () -> new Item(new Item.Properties()));
-    public static final RegistryObject<Item> COLOSSAL_TITAN_UPGRADE = ITEMS.register("colossal_upgrade",  () -> new Item(new Item.Properties()));
-    public static final RegistryObject<OnePunchManItem> ONE_PUNCH_MAN = ITEMS.register("one_punch_man", () -> new OnePunchManItem(new Item.Properties()));
-    public static final RegistryObject<DragonBallItem> DRAGON_BALL = ITEMS.register("dragon_ball", () -> new DragonBallItem(new Item.Properties()));
-    public static final RegistryObject<Item> KAIOKEN_UPGRADE = ITEMS.register("kaioken_upgrade",  () -> new Item(new Item.Properties()));
-    public static final RegistryObject<Item> SUPER_SAIYAN_UPGRADE = ITEMS.register("super_saiyan_upgrade",  () -> new Item(new Item.Properties()));
-    public static final RegistryObject<MobPsychoItem> MOB_PSYCHO = ITEMS.register("mob_psycho", () -> new MobPsychoItem(new Item.Properties()));
-    public static final RegistryObject<Item> ONE_THIRD_UPGRADE = ITEMS.register("one_third_upgrade",  () -> new Item(new Item.Properties()));
-    public static final RegistryObject<Item> TWO_THIRD_UPGRADE = ITEMS.register("two_third_upgrade",  () -> new Item(new Item.Properties()));
-    public static final RegistryObject<Item> THREE_THIRD_UPGRADE = ITEMS.register("three_third_upgrade",  () -> new Item(new Item.Properties()));
-    public static final RegistryObject<Item> QUESTION_MARKS_UPGRADE = ITEMS.register("question_marks_upgrade",  () -> new Item(new Item.Properties()));
+    public static final RegistryObject<AttackOnTitanItem> ATTACK_ON_TITAN = ITEMS.register("attack_on_titan", () -> new AttackOnTitanItem(getModProperties()));
+    public static final RegistryObject<Item> ARMORED_TITAN_UPGRADE = ITEMS.register("armored_upgrade", () -> new Item(getModProperties()));
+    public static final RegistryObject<Item> COLOSSAL_TITAN_UPGRADE = ITEMS.register("colossal_upgrade", () -> new Item(getModProperties()));
+    public static final RegistryObject<OnePunchManItem> ONE_PUNCH_MAN = ITEMS.register("one_punch_man", () -> new OnePunchManItem(getModProperties()));
+    public static final RegistryObject<DragonBallItem> DRAGON_BALL = ITEMS.register("dragon_ball", () -> new DragonBallItem(getModProperties()));
+    public static final RegistryObject<Item> KAIOKEN_UPGRADE = ITEMS.register("kaioken_upgrade", () -> new Item(getModProperties()));
+    public static final RegistryObject<Item> SUPER_SAIYAN_UPGRADE = ITEMS.register("super_saiyan_upgrade", () -> new Item(getModProperties()));
+    public static final RegistryObject<MobPsychoItem> MOB_PSYCHO = ITEMS.register("mob_psycho", () -> new MobPsychoItem(getModProperties()));
+    public static final RegistryObject<Item> ONE_THIRD_UPGRADE = ITEMS.register("one_third_upgrade", () -> new Item(getModProperties()));
+    public static final RegistryObject<Item> TWO_THIRD_UPGRADE = ITEMS.register("two_third_upgrade", () -> new Item(getModProperties()));
+    public static final RegistryObject<Item> THREE_THIRD_UPGRADE = ITEMS.register("three_third_upgrade", () -> new Item(getModProperties()));
+    public static final RegistryObject<Item> QUESTION_MARKS_UPGRADE = ITEMS.register("question_marks_upgrade", () -> new Item(getModProperties()));
 
     public static final RegistryObject<BasicParticleType> DRAGONBALL_BOLT = PARTICLE_TYPES.register("dragonball_bolt", () -> new BasicParticleType(true));
 
@@ -74,5 +75,9 @@ public class Registration {
 
     private static <T extends Entity> RegistryObject<EntityType<T>> registerEntity(String name, Supplier<EntityType.Builder<T>> supplier) {
         return ENTITY_TYPES.register(name, () -> supplier.get().build(name));
+    }
+
+    private static Item.Properties getModProperties() {
+        return new Item.Properties().tab(ItemGroup.TAB_MISC);
     }
 }

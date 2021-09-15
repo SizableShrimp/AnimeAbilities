@@ -1,9 +1,13 @@
 package me.sizableshrimp.animeabilities.network;
 
+import com.google.common.collect.ImmutableList;
 import me.sizableshrimp.animeabilities.AnimeAbilitiesMod;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+
+import java.util.List;
+import java.util.function.BiConsumer;
 
 public class NetworkHandler {
     private static final String PROTOCOL_VERSION = "1.0";
@@ -16,14 +20,21 @@ public class NetworkHandler {
     private static int nextId = 0;
 
     public static void register() {
-        KiStatusPacket.register(INSTANCE, getNextId());
-        KiChargePacket.register(INSTANCE, getNextId());
-        SpiritBombStatusPacket.register(INSTANCE, getNextId());
-        UseSpiritBombPacket.register(INSTANCE, getNextId());
-        BoostFlyPacket.register(INSTANCE, getNextId());
-        UseKiBlastPacket.register(INSTANCE, getNextId());
-        SwitchTitanPacket.register(INSTANCE, getNextId());
-        TitanStatusPacket.register(INSTANCE, getNextId());
+        List<BiConsumer<SimpleChannel, Integer>> packets = ImmutableList.<BiConsumer<SimpleChannel, Integer>>builder()
+                .add(KiStatusPacket::register)
+                .add(KiChargePacket::register)
+                .add(SpiritBombStatusPacket::register)
+                .add(UseSpiritBombPacket::register)
+                .add(BoostFlyPacket::register)
+                .add(UseKiBlastPacket::register)
+                .add(SwitchTitanPacket::register)
+                .add(TitanStatusPacket::register)
+                .add(MindMovePacket::register)
+                .add(UseKamehamehaPacket::register)
+                .add(SpiritBombExplodedPacket::register)
+                .build();
+
+        packets.forEach(consumer -> consumer.accept(INSTANCE, getNextId()));
     }
 
     private static int getNextId() {

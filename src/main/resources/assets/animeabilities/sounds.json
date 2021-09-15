@@ -1,92 +1,52 @@
 {
   "spirit_bomb_explode": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:spirit_bomb_explode",
-        "stream": false
-      }
+      "animeabilities:spirit_bomb_explode"
     ]
   },
   "boost_fly_jump": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:boost_fly_jump",
-        "stream": false
-      }
+      "animeabilities:boost_fly_jump"
     ]
   },
   "ki_charge": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:ki_charge",
-        "stream": false
-      }
+      "animeabilities:ki_charge"
     ]
   },
   "ki_start_charge": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:ki_start_charge",
-        "stream": false
-      }
+      "animeabilities:ki_start_charge"
     ]
   },
   "ki_blast": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:ki_blast",
-        "stream": false
-      }
+      "animeabilities:ki_blast"
     ]
   },
   "exit_super_saiyan": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:exit_super_saiyan",
-        "stream": false
-      }
+      "animeabilities:exit_super_saiyan"
     ]
   },
   "boost_fly_boost": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:boost_fly_boost",
-        "stream": false
-      }
+      "animeabilities:boost_fly_boost"
     ]
   },
   "kamehameha_charge": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:kamehameha_charge",
-        "stream": false
-      }
+      "animeabilities:kamehameha_charge"
     ]
   },
   "kamehameha_long_wave": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:kamehameha_long_wave",
-        "stream": false
-      }
+      "animeabilities:kamehameha_long_wave"
     ]
   },
   "kamehameha_short_wave": {
-    "category": "player",
     "sounds": [
-      {
-        "name": "animeabilities:kamehameha_short_wave",
-        "stream": false
-      }
+      "animeabilities:kamehameha_short_wave"
     ]
   }
 }

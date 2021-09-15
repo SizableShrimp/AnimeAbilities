@@ -17,22 +17,28 @@ import java.util.stream.Collectors;
 
 public class TitanHolder extends PlayerCapability {
     public enum Type {
-        FIGHTING(8, p -> true),
-        ARMORED(32, p -> Registration.ATTACK_ON_TITAN.get().hasUpgrade(p, AttackOnTitanItem.UpgradeType.ARMORED)),
-        COLOSSAL(64, p -> Registration.ATTACK_ON_TITAN.get().hasUpgrade(p, AttackOnTitanItem.UpgradeType.COLOSSAL));
+        FIGHTING(8, 8, p -> true),
+        ARMORED(16, 8, p -> Registration.ATTACK_ON_TITAN.get().hasUpgrade(p, AttackOnTitanItem.UpgradeType.ARMORED)),
+        COLOSSAL(32, 8, p -> Registration.ATTACK_ON_TITAN.get().hasUpgrade(p, AttackOnTitanItem.UpgradeType.COLOSSAL));
 
         private final float scale;
+        private final float jumpScale;
         private final EntitySize size;
         private final Predicate<PlayerEntity> canSwitch;
 
-        Type(float scale, Predicate<PlayerEntity> canSwitch) {
+        Type(float scale, float jumpScale, Predicate<PlayerEntity> canSwitch) {
             this.scale = scale;
+            this.jumpScale = jumpScale;
             this.size = EntityType.PLAYER.getDimensions().scale(scale);
             this.canSwitch = canSwitch;
         }
 
         public float getScale() {
             return scale;
+        }
+
+        public float getJumpScale() {
+            return jumpScale;
         }
 
         public EntitySize getSize() {

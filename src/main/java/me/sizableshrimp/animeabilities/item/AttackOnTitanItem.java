@@ -10,6 +10,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
@@ -45,6 +47,7 @@ public class AttackOnTitanItem extends UpgradeableAbilityItem<AttackOnTitanItem.
             TitanHolder.Type currentType = titanHolder.getType();
             TitanHolder.Type newType = available.get((available.indexOf(currentType) + 1) % available.size());
             titanHolder.setType(newType, true);
+            player.maxUpStep = newType == null ? 1F : newType.getJumpScale();
             player.refreshDimensions();
         });
     }
@@ -66,5 +69,26 @@ public class AttackOnTitanItem extends UpgradeableAbilityItem<AttackOnTitanItem.
                 event.setNewEyeHeight(size.height * 0.85F + (isCrouching ? -0.35F : 0F));
             }
         });
+    }
+
+    @SubscribeEvent
+    public void onLivingJump(LivingEvent.LivingJumpEvent event) {
+        if (!(event.getEntityLiving() instanceof PlayerEntity))
+            return;
+
+        PlayerEntity player = (PlayerEntity) event.getEntityLiving();
+        TitanHolderCapability.getTitanHolder(player).resolve()
+                .map(TitanHolder::getType)
+                .ifPresent(titanType -> player.setDeltaMovement(player.getDeltaMovement().multiply(1, titanType.getJumpScale() * 0.42, 1)));
+    }
+
+    @SubscribeEvent
+    public void onLivingFall(LivingFallEvent event) {
+        if (event.getEntityLiving() instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) event.getEntityLiving();
+            if (hasThisAbility(player) && TitanHolderCapability.getTitanHolder(player).resolve().map(TitanHolder::getType).isPresent()) {
+                event.setCanceled(true);
+            }
+        }
     }
 }

@@ -1,11 +1,15 @@
 package me.sizableshrimp.animeabilities.entity;
 
 import me.sizableshrimp.animeabilities.Registration;
+import me.sizableshrimp.animeabilities.network.SpiritBombExplodedPacket;
+import me.sizableshrimp.animeabilities.network.NetworkHandler;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 public class SpiritBombEntity extends AbstractKiEntity {
     public static boolean cancelNextExplosionSound = false;
@@ -21,8 +25,11 @@ public class SpiritBombEntity extends AbstractKiEntity {
     @Override
     protected void onCollide() {
         if (this.level.isClientSide)
-            cancelNextExplosionSound = true;
-        this.level.explode(this, this.getX(), this.getY(), this.getZ(), 12, true, Explosion.Mode.DESTROY);
-        this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), Registration.SPIRIT_BOMB_EXPLODE_SOUND.get(), SoundCategory.PLAYERS, 1F, 1F, false);
+            return;
+        Entity owner = this.getOwner();
+        if (owner instanceof ServerPlayerEntity) {
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) owner), new SpiritBombExplodedPacket(this.position()));
+        }
+        this.level.explode(this, this.getX(), this.getY(), this.getZ(), 15, true, Explosion.Mode.DESTROY);
     }
 }

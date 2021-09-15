@@ -18,6 +18,9 @@ public class ActiveRenderInfoMixin {
         if (renderViewEntity != mc.player || mc.player == null)
             return startingDistance;
 
-        return TitanHolderCapability.getTitanHolder(mc.player).resolve().map(TitanHolder::getType).map(titanType -> titanType.getScale() * startingDistance).orElse(startingDistance);
+        return TitanHolderCapability.getTitanHolder(mc.player).resolve()
+                .map(TitanHolder::getType)
+                .map(titanType -> titanType.getScale() / 2 * startingDistance)
+                .orElse(startingDistance);
     }
 }

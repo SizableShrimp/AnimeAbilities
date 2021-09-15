@@ -4,6 +4,8 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import me.sizableshrimp.animeabilities.AnimeAbilitiesMod;
 import me.sizableshrimp.animeabilities.Registration;
+import me.sizableshrimp.animeabilities.capability.KiHolder;
+import me.sizableshrimp.animeabilities.capability.KiHolderCapability;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolder;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolderCapability;
 import me.sizableshrimp.animeabilities.client.AnimeKeyBindings;
@@ -22,6 +24,7 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
@@ -45,6 +48,8 @@ public class DragonBallLayer extends LayerRenderer<AbstractClientPlayerEntity, P
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks,
             float ageInTicks, float netYRot, float headPitch) {
+        if (ClientEventHandler.isRenderingInventory())
+            return;
         if (DragonBallItem.isUsingSpiritBomb(player)) {
             renderSpiritBomb(matrixStack, buffer, player, packedLight);
         }
@@ -53,7 +58,12 @@ public class DragonBallLayer extends LayerRenderer<AbstractClientPlayerEntity, P
                 || (Registration.DRAGON_BALL.get().isBoostFlying(player) && (mc.player != player || !mc.options.getCameraType().isFirstPerson()))) {
             renderAura(matrixStack, buffer, player, packedLight, 0xFFFFDD00);
         }
-        // renderKamehameha(matrixStack, buffer, player, packedLight, partialTicks, netYRot);
+
+        boolean usingKamehameha = DragonBallItem.isUsingKamehameha(player);
+        boolean activeKamehameha = !usingKamehameha && DragonBallItem.isKamehamehaActive(player);
+        if (usingKamehameha || activeKamehameha) {
+            renderKamehameha(player, matrixStack, buffer, partialTicks, packedLight, activeKamehameha);
+        }
     }
 
     private void renderSpiritBomb(MatrixStack matrixStack, IRenderTypeBuffer buffer, AbstractClientPlayerEntity player, int packedLight) {
@@ -76,6 +86,51 @@ public class DragonBallLayer extends LayerRenderer<AbstractClientPlayerEntity, P
         }
     }
 
+    private void renderKamehameha(PlayerEntity player, MatrixStack matrixStack, IRenderTypeBuffer buffer, float partialTicks, int packedLight, boolean active) {
+        KiHolder kiHolder = KiHolderCapability.getKiHolderUnwrap(player);
+        if (kiHolder == null)
+            return;
+        // int i = 10;
+        float lerpedYBodyRot = MathHelper.rotLerp(partialTicks, player.yBodyRotO, player.yBodyRot);
+        // matrixStack.mulPose(Vector3f.YN.rotationDegrees(180.0F - lerpedYBodyRot));
+        matrixStack.pushPose();
+        Minecraft mc = Minecraft.getInstance();
+        boolean isFirstPerson = mc.options.getCameraType().isFirstPerson() && mc.player == player;
+
+        matrixStack.translate(0D, 0.25D, 0D);
+        float lerpedYHeadRot = MathHelper.rotLerp(partialTicks, player.yHeadRotO, player.yHeadRot);
+        float lerpedXRot = MathHelper.rotLerp(partialTicks, player.xRotO, player.xRot);
+        float net = lerpedYHeadRot - lerpedYBodyRot;
+        matrixStack.mulPose(Vector3f.YP.rotationDegrees(90 + net));
+        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(lerpedXRot));
+
+        matrixStack.pushPose();
+
+        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(90));
+        float usedPercentage;
+        if (active) {
+            usedPercentage = 1F;
+        } else {
+            int minAnimTime = kiHolder.getMinKamehamehaAnimation();
+            int usedAnimTime = kiHolder.getUsedKamehamehaAnimation();
+            usedPercentage = Math.min((float) usedAnimTime / minAnimTime, 1F);
+        }
+        float xzScale = usedPercentage * (isFirstPerson ? 0.2F : 0.4F);
+
+        matrixStack.scale(xzScale, 5F, xzScale);
+
+        if (isFirstPerson) {
+            matrixStack.translate(0, -0.92, 0);
+        } else {
+            matrixStack.translate(0, -1.1, 0);
+        }
+        OBJRenderer.renderCylinder(matrixStack, buffer, packedLight, 0x5F0689FD);
+
+        matrixStack.popPose();
+
+        matrixStack.popPose();
+    }
+
     private void renderAuraInternal(MatrixStack matrixStack, IVertexBuilder builder, AbstractClientPlayerEntity player, int packedLight, ColorUtil.ColorData color, int offset) {
         float auraX = offset % 60 * 6F;
         float auraY = offset % 33 * 0.85F;
@@ -92,39 +147,6 @@ public class DragonBallLayer extends LayerRenderer<AbstractClientPlayerEntity, P
             aura.xRot = (float) (Math.toRadians(25.0D + auraY * 0.15D));
             aura.render(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, color.r(), color.g(), color.b(), color.alpha());
         }
-
-        matrixStack.popPose();
-    }
-
-    private void renderKamehameha(MatrixStack matrixStack, IRenderTypeBuffer buffer, AbstractClientPlayerEntity player, int packedLight, float partialTicks, float netYRot) {
-        // int i = 10;
-        float lerpedYBodyRot = MathHelper.rotLerp(partialTicks, player.yBodyRotO, player.yBodyRot);
-        // matrixStack.mulPose(Vector3f.YN.rotationDegrees(180.0F - lerpedYBodyRot));
-        matrixStack.pushPose();
-        Minecraft mc = Minecraft.getInstance();
-        boolean isFirstPerson = mc.options.getCameraType().isFirstPerson() && mc.player == player;
-
-        if (isFirstPerson) {
-            matrixStack.translate(0D, 0.25D, 0D);
-        } else {
-            matrixStack.translate(-0.2D, 0.7D, 0D);
-        }
-        float lerpedYHeadRot = MathHelper.rotLerp(partialTicks, player.yHeadRotO, player.yHeadRot);
-        float net = lerpedYHeadRot - lerpedYBodyRot;
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(90 + net));
-
-        matrixStack.pushPose();
-
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(90));
-        matrixStack.scale(0.2F, 5F, 0.2F);
-        if (isFirstPerson) {
-            matrixStack.translate(0, -0.92, 0);
-        } else {
-            matrixStack.translate(0, -1.1, 0);
-        }
-        OBJRenderer.renderCylinder(matrixStack, buffer, packedLight, 0x5FFFDD00);
-
-        matrixStack.popPose();
 
         matrixStack.popPose();
     }

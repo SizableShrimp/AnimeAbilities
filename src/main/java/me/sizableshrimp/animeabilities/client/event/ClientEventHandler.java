@@ -9,32 +9,42 @@ import me.sizableshrimp.animeabilities.capability.SpiritBombHolderCapability;
 import me.sizableshrimp.animeabilities.capability.TitanHolder;
 import me.sizableshrimp.animeabilities.capability.TitanHolderCapability;
 import me.sizableshrimp.animeabilities.client.AnimeKeyBindings;
-import me.sizableshrimp.animeabilities.client.sound.KiChargeSound;
+import me.sizableshrimp.animeabilities.client.sound.DragonBallSound;
 import me.sizableshrimp.animeabilities.entity.SpiritBombEntity;
 import me.sizableshrimp.animeabilities.item.DragonBallItem;
 import me.sizableshrimp.animeabilities.network.BoostFlyPacket;
 import me.sizableshrimp.animeabilities.network.KiChargePacket;
+import me.sizableshrimp.animeabilities.network.MindMovePacket;
 import me.sizableshrimp.animeabilities.network.NetworkHandler;
 import me.sizableshrimp.animeabilities.network.SwitchTitanPacket;
+import me.sizableshrimp.animeabilities.network.UseKamehamehaPacket;
 import me.sizableshrimp.animeabilities.network.UseKiBlastPacket;
 import me.sizableshrimp.animeabilities.network.UseSpiritBombPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ElytraSound;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.gui.screen.inventory.CreativeScreen;
+import net.minecraft.client.gui.screen.inventory.InventoryScreen;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
@@ -42,6 +52,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,15 +69,32 @@ public class ClientEventHandler {
 
         if (didPress(event, AnimeKeyBindings.KI_CHARGE) && KiChargePacket.canChargeKi(mc.player)) {
             mc.player.level.playSound(mc.player, mc.player, Registration.KI_START_CHARGE_SOUND.get(), SoundCategory.PLAYERS, 1F, 1F);
-            mc.getSoundManager().playDelayed(new KiChargeSound(p -> AnimeKeyBindings.KI_CHARGE.isDown(), 0.7F), 5);
+            mc.getSoundManager().playDelayed(new DragonBallSound(Registration.KI_CHARGE_SOUND.get(), p -> AnimeKeyBindings.KI_CHARGE.isDown(), 0.7F), 5);
         } else if (didPress(event, AnimeKeyBindings.SWITCH_TITAN) && SwitchTitanPacket.canSwitchTitan(mc.player)) {
             NetworkHandler.INSTANCE.sendToServer(new SwitchTitanPacket());
+        } else if (isKey(event, AnimeKeyBindings.MIND_MOVE)) {
+            if (event.getAction() == GLFW.GLFW_PRESS) {
+                NetworkHandler.INSTANCE.sendToServer(new MindMovePacket(true));
+            } else if (event.getAction() == GLFW.GLFW_RELEASE) {
+                NetworkHandler.INSTANCE.sendToServer(new MindMovePacket(false));
+            }
+        } else if (isKey(event, AnimeKeyBindings.KAMEHAMEHA)) {
+            if (event.getAction() == GLFW.GLFW_PRESS && UseKamehamehaPacket.canKamehameha(mc.player)) {
+                NetworkHandler.INSTANCE.sendToServer(new UseKamehamehaPacket(true));
+                mc.getSoundManager().playDelayed(new DragonBallSound(Registration.KAMEHAMEHA_CHARGE_SOUND.get(),
+                        p -> AnimeKeyBindings.KAMEHAMEHA.isDown() && DragonBallItem.isUsingKamehameha(p), 0.7F), 5);
+            } else if (event.getAction() == GLFW.GLFW_RELEASE) {
+                NetworkHandler.INSTANCE.sendToServer(new UseKamehamehaPacket(false));
+            }
         }
     }
 
     private static boolean didPress(InputEvent.KeyInputEvent event, KeyBinding keyBinding) {
-        return event.getAction() == GLFW.GLFW_PRESS
-                && event.getKey() == keyBinding.getKey().getValue()
+        return event.getAction() == GLFW.GLFW_PRESS && isKey(event, keyBinding);
+    }
+
+    private static boolean isKey(InputEvent.KeyInputEvent event, KeyBinding keyBinding) {
+        return event.getKey() == keyBinding.getKey().getValue()
                 && keyBinding.isConflictContextAndModifierActive();
     }
 
@@ -112,7 +140,7 @@ public class ClientEventHandler {
                 }
                 // NetworkHandler.INSTANCE.sendToServer(new BoostFlyPacket(true));
                 mc.player.startFallFlying();
-                mc.getSoundManager().play(new KiChargeSound(LivingEntity::isFallFlying, 0.5F));
+                mc.getSoundManager().play(new DragonBallSound(Registration.KI_CHARGE_SOUND.get(), LivingEntity::isFallFlying, 0.5F));
             }
             if (mc.player.isFallFlying()) {
                 boost(mc.player, boostHeld);
@@ -171,7 +199,22 @@ public class ClientEventHandler {
     public static void onRenderWorldLast(RenderWorldLastEvent event) {
         Minecraft mc = Minecraft.getInstance();
         ClientPlayerEntity player = mc.player;
-        if (player == null || !mc.options.getCameraType().isFirstPerson() || player.isSpectator())
+        if (player == null)
+            return;
+
+        // Renders AABB of kamehameha
+        // float x = player.xRot;
+        // float y = player.yRot;
+        // float z = 0F;
+        // float rotatedX = -MathHelper.sin(y * ((float) Math.PI / 180F)) * MathHelper.cos(x * ((float) Math.PI / 180F));
+        // float rotatedY = -MathHelper.sin((x + z) * ((float) Math.PI / 180F));
+        // float rotatedZ = MathHelper.cos(y * ((float) Math.PI / 180F)) * MathHelper.cos(x * ((float) Math.PI / 180F));
+        // Vector3d rotatedVec = new Vector3d(rotatedX, rotatedY, rotatedZ).scale(20);
+        // Vector3d eyeVec = player.getEyePosition(event.getPartialTicks());
+        // AxisAlignedBB aabb = new AxisAlignedBB(eyeVec, eyeVec).expandTowards(rotatedVec).inflate(0.5D);
+        // renderBoundingBox(event.getMatrixStack(), aabb);
+
+        if (!mc.options.getCameraType().isFirstPerson() || player.isSpectator())
             return;
 
         MatrixStack matrixStack = event.getMatrixStack();
@@ -205,10 +248,47 @@ public class ClientEventHandler {
         matrixStack.popPose();
     }
 
+    private static void renderBoundingBox(MatrixStack matrixStack, AxisAlignedBB aabb) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder builder = tessellator.getBuilder();
+        // IRenderTypeBuffer.Impl bufSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        // IVertexBuilder builder = bufSource.getBuffer(RenderType.LINES);
+
+        Vector3d viewVec = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        matrixStack.pushPose();
+        matrixStack.translate(-viewVec.x(), -viewVec.y(), -viewVec.z());
+        builder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR );
+        WorldRenderer.renderLineBox(matrixStack, builder, aabb, 1, 1, 1, 1);
+        tessellator.end();
+        matrixStack.popPose();
+        // bufSource.endBatch();
+    }
+
+    private static boolean renderingInventory = false;
+
+    public static boolean isRenderingInventory() {
+        return renderingInventory;
+    }
+
+    @SubscribeEvent
+    public static void onDrawScreenPre(GuiScreenEvent.DrawScreenEvent.Pre event) {
+        if (event.getGui() instanceof InventoryScreen || event.getGui() instanceof CreativeScreen) {
+            renderingInventory = true;
+        }
+    }
+
+    @SubscribeEvent
+    public static void onDrawScreenPost(GuiScreenEvent.DrawScreenEvent.Post event) {
+        renderingInventory = false;
+    }
+
     @SubscribeEvent
     public static void onPlayerModelRenderPre(PlayerModelEvent.Render.Pre event) {
+        if (renderingInventory)
+            return;
         PlayerModel<?> playerModel = event.getModelPlayer();
         PlayerEntity player = event.getPlayer();
+
         TitanHolderCapability.getTitanHolder(player).ifPresent(titanHolder -> {
             TitanHolder.Type type = titanHolder.getType();
             if (type == null)
@@ -216,8 +296,35 @@ public class ClientEventHandler {
             float scale = type.getScale() / 0.9375F/* * 2.8F*/;
             event.getMatrixStack().translate(0, -type.getScale() * 1.4F, 0);
             event.getMatrixStack().scale(scale, scale, scale);
-            event.getMatrixStack().pushPose();
         });
+
+        KiHolderCapability.getKiHolder(player).ifPresent(kiHolder -> {
+            if (!kiHolder.isUsingKamehameha())
+                return;
+            int usedDuration = kiHolder.getUsedKamehamehaAnimation();
+            float percentage = usedDuration / (float) kiHolder.getMaxKamehamehaAnimation();
+
+            // float lerpedYBodyRot = MathHelper.rotLerp(partialTicks, player.yBodyRotO, player.yBodyRot);
+            // float lerpedYHeadRot = MathHelper.rotLerp(partialTicks, player.yHeadRotO, player.yHeadRot);
+            // float netPlayerYRot = lerpedYHeadRot - lerpedYBodyRot;
+            // float yRadians = netPlayerYRot * ((float) Math.PI / 180F);
+            //
+            // float lerpedPlayerXRot = Math.min(MathHelper.rotLerp(partialTicks, player.xRotO, player.xRot), 35F);
+            // float xRadians = lerpedPlayerXRot * ((float) Math.PI / 180F);
+
+            float xRot = Math.max(-1.3F, -percentage * 12F);
+            playerModel.leftArm.xRot = xRot;
+            playerModel.rightArm.xRot = xRot;
+
+            float yRot = Math.min(0.3F, percentage * 24F);
+            playerModel.leftArm.yRot = yRot;
+            playerModel.rightArm.yRot = -yRot;
+
+            float zRot = Math.min(1.2F, percentage * 12F);
+            playerModel.leftArm.zRot = zRot;
+            playerModel.rightArm.zRot = -zRot;
+        });
+
         // if (isDragonBallFloating(player)) {
         //     double horizMovement = player.getDirection() == Direction.EAST || player.getDirection() == Direction.WEST
         //             ? player.getDeltaMovement().x()
@@ -237,6 +344,7 @@ public class ClientEventHandler {
         //     }
         //     event.getMatrixStack().pushPose();
         // }
+
         SpiritBombHolderCapability.getSpiritBombHolder(player).ifPresent(spiritBombHolder -> {
             if (!spiritBombHolder.isUsingSpiritBomb())
                 return;
@@ -250,12 +358,11 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void onPlayerModelRenderPost(PlayerModelEvent.Render.Post event) {
+        if (renderingInventory)
+            return;
         // if (isDragonBallFloating(event.getPlayer())) {
         //     event.getMatrixStack().popPose();
         // }
-        TitanHolderCapability.getTitanHolder(event.getPlayer()).ifPresent(titanHolder -> {
-            event.getMatrixStack().popPose();
-        });
     }
 
     // private static boolean isMovingHorizontally(PlayerEntity player) {
