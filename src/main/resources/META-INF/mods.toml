@@ -54,3 +54,10 @@ versionRange="[0,)"
 mandatory=true
 ordering="NONE"
 side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="calemiutils"
+versionRange="[0,)"
+mandatory=true
+ordering="NONE"
+side="BOTH"
