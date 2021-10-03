@@ -16,6 +16,7 @@ import me.sizableshrimp.animeabilities.network.BoostFlyPacket;
 import me.sizableshrimp.animeabilities.network.KiChargePacket;
 import me.sizableshrimp.animeabilities.network.MindMovePacket;
 import me.sizableshrimp.animeabilities.network.NetworkHandler;
+import me.sizableshrimp.animeabilities.network.OpenAbilitiesPacket;
 import me.sizableshrimp.animeabilities.network.SwitchTitanPacket;
 import me.sizableshrimp.animeabilities.network.UseKamehamehaPacket;
 import me.sizableshrimp.animeabilities.network.UseKiBlastPacket;
@@ -86,6 +87,8 @@ public class ClientEventHandler {
             } else if (event.getAction() == GLFW.GLFW_RELEASE) {
                 NetworkHandler.INSTANCE.sendToServer(new UseKamehamehaPacket(false));
             }
+        } else if (didPress(event, AnimeKeyBindings.MANAGE_ABILITIES)) {
+            NetworkHandler.INSTANCE.sendToServer(new OpenAbilitiesPacket());
         }
     }
 

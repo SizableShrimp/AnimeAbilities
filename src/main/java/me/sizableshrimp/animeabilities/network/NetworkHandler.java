@@ -32,6 +32,8 @@ public class NetworkHandler {
                 .add(MindMovePacket::register)
                 .add(UseKamehamehaPacket::register)
                 .add(SpiritBombExplodedPacket::register)
+                .add(AbilityStatusPacket::register)
+                .add(OpenAbilitiesPacket::register)
                 .build();
 
         packets.forEach(consumer -> consumer.accept(INSTANCE, getNextId()));

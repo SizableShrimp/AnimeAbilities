@@ -1,14 +1,17 @@
 package me.sizableshrimp.animeabilities;
 
+import me.sizableshrimp.animeabilities.container.AbilityContainer;
 import me.sizableshrimp.animeabilities.entity.KiBlastEntity;
 import me.sizableshrimp.animeabilities.entity.SpiritBombEntity;
 import me.sizableshrimp.animeabilities.item.AttackOnTitanItem;
 import me.sizableshrimp.animeabilities.item.DragonBallItem;
 import me.sizableshrimp.animeabilities.item.MobPsychoItem;
 import me.sizableshrimp.animeabilities.item.OnePunchManItem;
+import me.sizableshrimp.animeabilities.item.UpgradeItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.particles.BasicParticleType;
@@ -28,19 +31,20 @@ public class Registration {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, AnimeAbilitiesMod.MODID);
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, AnimeAbilitiesMod.MODID);
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, AnimeAbilitiesMod.MODID);
+    public static final DeferredRegister<ContainerType<?>> CONTAINER_TYPES = DeferredRegister.create(ForgeRegistries.CONTAINERS, AnimeAbilitiesMod.MODID);
 
-    public static final RegistryObject<AttackOnTitanItem> ATTACK_ON_TITAN = ITEMS.register("attack_on_titan", () -> new AttackOnTitanItem(getModProperties()));
-    public static final RegistryObject<Item> ARMORED_TITAN_UPGRADE = ITEMS.register("armored_upgrade", () -> new Item(getModProperties()));
-    public static final RegistryObject<Item> COLOSSAL_TITAN_UPGRADE = ITEMS.register("colossal_upgrade", () -> new Item(getModProperties()));
-    public static final RegistryObject<OnePunchManItem> ONE_PUNCH_MAN = ITEMS.register("one_punch_man", () -> new OnePunchManItem(getModProperties()));
-    public static final RegistryObject<DragonBallItem> DRAGON_BALL = ITEMS.register("dragon_ball", () -> new DragonBallItem(getModProperties()));
-    public static final RegistryObject<Item> KAIOKEN_UPGRADE = ITEMS.register("kaioken_upgrade", () -> new Item(getModProperties()));
-    public static final RegistryObject<Item> SUPER_SAIYAN_UPGRADE = ITEMS.register("super_saiyan_upgrade", () -> new Item(getModProperties()));
-    public static final RegistryObject<MobPsychoItem> MOB_PSYCHO = ITEMS.register("mob_psycho", () -> new MobPsychoItem(getModProperties()));
-    public static final RegistryObject<Item> ONE_THIRD_UPGRADE = ITEMS.register("one_third_upgrade", () -> new Item(getModProperties()));
-    public static final RegistryObject<Item> TWO_THIRD_UPGRADE = ITEMS.register("two_third_upgrade", () -> new Item(getModProperties()));
-    public static final RegistryObject<Item> THREE_THIRD_UPGRADE = ITEMS.register("three_third_upgrade", () -> new Item(getModProperties()));
-    public static final RegistryObject<Item> QUESTION_MARKS_UPGRADE = ITEMS.register("question_marks_upgrade", () -> new Item(getModProperties()));
+    public static final RegistryObject<AttackOnTitanItem> ATTACK_ON_TITAN = ITEMS.register("attack_on_titan", () -> new AttackOnTitanItem(getAbilityItemProperties()));
+    public static final RegistryObject<Item> ARMORED_TITAN_UPGRADE = ITEMS.register("armored_upgrade", () -> new UpgradeItem(getAbilityItemProperties()));
+    public static final RegistryObject<Item> COLOSSAL_TITAN_UPGRADE = ITEMS.register("colossal_upgrade", () -> new UpgradeItem(getAbilityItemProperties()));
+    public static final RegistryObject<OnePunchManItem> ONE_PUNCH_MAN = ITEMS.register("one_punch_man", () -> new OnePunchManItem(getAbilityItemProperties()));
+    public static final RegistryObject<DragonBallItem> DRAGON_BALL = ITEMS.register("dragon_ball", () -> new DragonBallItem(getAbilityItemProperties()));
+    public static final RegistryObject<Item> KAIOKEN_UPGRADE = ITEMS.register("kaioken_upgrade", () -> new UpgradeItem(getAbilityItemProperties()));
+    public static final RegistryObject<Item> SUPER_SAIYAN_UPGRADE = ITEMS.register("super_saiyan_upgrade", () -> new UpgradeItem(getAbilityItemProperties()));
+    public static final RegistryObject<MobPsychoItem> MOB_PSYCHO = ITEMS.register("mob_psycho", () -> new MobPsychoItem(getAbilityItemProperties()));
+    public static final RegistryObject<Item> ONE_THIRD_UPGRADE = ITEMS.register("one_third_upgrade", () -> new UpgradeItem(getAbilityItemProperties()));
+    public static final RegistryObject<Item> TWO_THIRD_UPGRADE = ITEMS.register("two_third_upgrade", () -> new UpgradeItem(getAbilityItemProperties()));
+    public static final RegistryObject<Item> THREE_THIRD_UPGRADE = ITEMS.register("three_third_upgrade", () -> new UpgradeItem(getAbilityItemProperties()));
+    public static final RegistryObject<Item> QUESTION_MARKS_UPGRADE = ITEMS.register("question_marks_upgrade", () -> new UpgradeItem(getAbilityItemProperties()));
 
     public static final RegistryObject<BasicParticleType> DRAGONBALL_BOLT = PARTICLE_TYPES.register("dragonball_bolt", () -> new BasicParticleType(true));
 
@@ -60,6 +64,8 @@ public class Registration {
     public static final RegistryObject<EntityType<KiBlastEntity>> KI_BLAST_ENTITY_TYPE = registerEntity("ki_blast",
             () -> EntityType.Builder.<KiBlastEntity>of(KiBlastEntity::new, EntityClassification.MISC).sized(0.7F, 0.7F));
 
+    public static final RegistryObject<ContainerType<AbilityContainer>> ABILITIES_CONTAINER = CONTAINER_TYPES.register("abilities", () -> new ContainerType<>(AbilityContainer::new));
+
     public static void register() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -67,6 +73,7 @@ public class Registration {
         PARTICLE_TYPES.register(modBus);
         SOUND_EVENTS.register(modBus);
         ENTITY_TYPES.register(modBus);
+        CONTAINER_TYPES.register(modBus);
     }
 
     private static RegistryObject<SoundEvent> registerSound(String name) {
@@ -77,7 +84,11 @@ public class Registration {
         return ENTITY_TYPES.register(name, () -> supplier.get().build(name));
     }
 
-    private static Item.Properties getModProperties() {
+    private static Item.Properties getItemProperties() {
         return new Item.Properties().tab(ItemGroup.TAB_MISC);
+    }
+
+    private static Item.Properties getAbilityItemProperties() {
+        return getItemProperties().stacksTo(1);
     }
 }

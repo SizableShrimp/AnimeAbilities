@@ -1,5 +1,6 @@
 package me.sizableshrimp.animeabilities;
 
+import me.sizableshrimp.animeabilities.capability.AbilityHolderCapability;
 import me.sizableshrimp.animeabilities.capability.KiHolderCapability;
 import me.sizableshrimp.animeabilities.capability.SpiritBombHolderCapability;
 import me.sizableshrimp.animeabilities.capability.TitanHolderCapability;
@@ -25,6 +26,7 @@ public class AnimeAbilitiesMod {
         KiHolderCapability.register();
         SpiritBombHolderCapability.register();
         TitanHolderCapability.register();
+        AbilityHolderCapability.register();
         NetworkHandler.register();
     }
 }

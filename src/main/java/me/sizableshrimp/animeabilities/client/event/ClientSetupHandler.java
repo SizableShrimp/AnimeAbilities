@@ -8,7 +8,9 @@ import me.sizableshrimp.animeabilities.client.renderer.KiBlastRenderer;
 import me.sizableshrimp.animeabilities.client.renderer.OBJRenderer;
 import me.sizableshrimp.animeabilities.client.renderer.SpiritBombRenderer;
 import me.sizableshrimp.animeabilities.client.renderer.layer.DragonBallLayer;
+import me.sizableshrimp.animeabilities.client.screen.AbilityContainerScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
@@ -28,6 +30,9 @@ public class ClientSetupHandler {
         event.enqueueWork(() -> Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().values()
                 .forEach(playerRenderer -> playerRenderer.addLayer(new DragonBallLayer(playerRenderer))));
         AnimeKeyBindings.getKeyBindings().forEach(ClientRegistry::registerKeyBinding);
+
+
+        event.enqueueWork(() -> ScreenManager.register(Registration.ABILITIES_CONTAINER.get(), AbilityContainerScreen::new));
     }
 
     @SubscribeEvent

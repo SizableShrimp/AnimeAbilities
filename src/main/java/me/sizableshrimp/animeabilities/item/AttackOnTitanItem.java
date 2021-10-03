@@ -47,8 +47,7 @@ public class AttackOnTitanItem extends UpgradeableAbilityItem<AttackOnTitanItem.
             TitanHolder.Type currentType = titanHolder.getType();
             TitanHolder.Type newType = available.get((available.indexOf(currentType) + 1) % available.size());
             titanHolder.setType(newType, true);
-            player.maxUpStep = newType == null ? 1F : newType.getJumpScale();
-            player.refreshDimensions();
+            titanHolder.refreshPlayerTitan();
         });
     }
 

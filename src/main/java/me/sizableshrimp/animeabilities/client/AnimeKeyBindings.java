@@ -18,6 +18,7 @@ public class AnimeKeyBindings {
     public static final KeyBinding SWITCH_TITAN = registerKeyBinding("key.animeabilities.switch_titan", KeyConflictContext.IN_GAME, GLFW.GLFW_KEY_K);
     public static final KeyBinding MIND_MOVE = registerKeyBinding("key.animeabilities.mind_move", KeyConflictContext.IN_GAME, GLFW.GLFW_KEY_M);
     public static final KeyBinding KAMEHAMEHA = registerKeyBinding("key.animeabilities.kamehameha", KeyConflictContext.IN_GAME, GLFW.GLFW_KEY_O);
+    public static final KeyBinding MANAGE_ABILITIES = registerKeyBinding("key.animeabilities.manage_abilities", KeyConflictContext.IN_GAME, GLFW.GLFW_KEY_LEFT_BRACKET);
 
     private static KeyBinding registerKeyBinding(String description, KeyConflictContext conflictContext, int keyCode) {
         KeyBinding key = new KeyBinding(description, conflictContext, InputMappings.Type.KEYSYM.getOrCreate(keyCode), "key.categories.animeabilities");
